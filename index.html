@@ -1,0 +1,299 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+	<head>
+		<title>Random Password Generator - Clicface</title>
+		<meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+		<link href="//fonts.googleapis.com/css?family=Luckiest+Guy" rel="stylesheet" type="text/css" />
+		<style type="text/css">
+			body {
+				font-family: Verdana, Geneva, sans-serif;
+				background-color: #f1f1f1;
+				margin: 10px;
+			}
+			#langChanger {
+				font-family:Verdana,Geneva,sans-serif;
+				font-size: 12px;
+				margin-bottom: 10px;
+				text-align: center;
+			}
+			#option_choice {
+				width: 500px;
+				margin-left: auto;
+				margin-right: auto;
+			}
+			.length_item, .checked_item, .unchecked_item {
+				border-bottom-left-radius: 4px;
+				border-bottom-right-radius: 4px;
+				border-bottom-style: solid;
+				border-bottom-width: 1px;
+				border-collapse: collapse;
+				border-left-color: rgb(0, 0, 0);
+				border-left-style: solid;
+				border-left-width: 1px;
+				border-right-color: rgb(0, 0, 0);
+				border-right-style: solid;
+				border-right-width: 1px;
+				border-top-color: rgb(0, 0, 0);
+				border-top-left-radius: 4px;
+				border-top-right-radius: 4px;
+				border-top-style: solid;
+				border-top-width: 1px;
+				box-shadow: rgb(204, 204, 204) 0px 1px 1px 0px inset, rgba(0, 0, 0, 0.611765) 0px 1px 2px 0px;
+				display: block;
+			}
+			.length_item {
+				background: #CCCCCC;
+				text-align: center;
+			}
+			.checked_item {
+				background: #66FF66;
+			}
+			.unchecked_item {
+				background: #FF6666;
+			}
+			select {
+				font-size: 16px;
+			}
+			input[type="checkbox"] {
+				display: none;
+			}
+			ul {
+				font-family: Verdana, Arial, Helvetica, sans-serif;
+				font-style: normal;
+				line-height: 2em;
+				font-weight: normal;
+				font-variant: normal;
+				text-transform: none;
+				text-indent: 5px;
+				list-style-position: outside;
+				list-style-type: none;
+				padding: 6px;
+				margin: 2px;
+			}
+			li {
+				padding: 6px;
+				margin: 2px;
+			}
+			.chars_example {
+				font-family:'Courier New', Courier, monospace;
+				float: right;
+			}
+			.checked_item label, .unchecked_item label {
+				display:block;
+			}
+			#title a {
+				font-family: "Luckiest Guy", Arial, serif;
+				font-size: 32px;
+				color:#CE3131;
+				text-decoration: none;
+				text-shadow: 2px 2px 2px #aaa;
+				text-align : center;
+				padding: 10px;
+				display: block;
+			}
+			
+			#generate {
+				border-collapse: collapse;
+				color: rgb(255, 255, 255);
+				cursor: auto;
+				display: block;
+				font-family: Arial, Helvetica, sans-serif;
+				font-size: 16px;
+				font-weight: bold;
+				height: 40px;
+				line-height: 40px;
+				margin-bottom: 0px;
+				margin-left: 0px;
+				margin-right: 0px;
+				margin-top: 0px;
+				padding-bottom: 0px;
+				padding-left: 20px;
+				padding-right: 20px;
+				padding-top: 0px;
+				text-align: center;
+				text-decoration: none;
+				text-shadow: rgb(17, 74, 30) 0px 1px 2px, rgb(17, 74, 30) 0px 1px 0px;
+				width: 255px;
+				-webkit-background-clip: border-box;
+				-webkit-background-origin: padding-box;
+				-webkit-background-size: auto;
+				-webkit-border-image: none;
+				-webkit-box-shadow: rgb(148, 221, 166) 0px 1px 1px 0px inset, rgba(0, 0, 0, 0.611765) 0px 1px 2px 0px;
+				background-attachment: scroll;
+				background-clip: border-box;
+				background-color: rgba(0, 0, 0, 0);
+				background-image: -webkit-linear-gradient(top, rgb(93, 187, 115) 0%, rgb(45, 144, 71) 100%);
+				background-origin: padding-box;
+				background-size: auto;
+				border-bottom-color: rgb(29, 105, 45);
+				border-bottom-left-radius: 4px;
+				border-bottom-right-radius: 4px;
+				border-bottom-style: solid;
+				border-bottom-width: 1px;
+				border-collapse: collapse;
+				border-left-color: rgb(29, 105, 45);
+				border-left-style: solid;
+				border-left-width: 1px;
+				border-right-color: rgb(29, 105, 45);
+				border-right-style: solid;
+				border-right-width: 1px;
+				border-top-color: rgb(29, 105, 45);
+				border-top-left-radius: 4px;
+				border-top-right-radius: 4px;
+				border-top-style: solid;
+				border-top-width: 1px;
+				box-shadow: rgb(148, 221, 166) 0px 1px 1px 0px inset, rgba(0, 0, 0, 0.611765) 0px 1px 2px 0px;
+				margin-left: auto;
+				margin-right: auto;
+			}
+			#generate:hover {
+				background: #68ce80; /* Old browsers */
+				background: -moz-linear-gradient(top, #68ce80 0%, #3cae5a 100%); /* FF3.6+ */
+				background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#68ce80), color-stop(100%,#3cae5a)); /* Chrome,Safari4+ */
+				background: -webkit-linear-gradient(top, #68ce80 0%,#3cae5a 100%); /* Chrome10+,Safari5.1+ */
+				background: -o-linear-gradient(top, #68ce80 0%,#3cae5a 100%); /* Opera 11.10+ */
+				background: -ms-linear-gradient(top, #68ce80 0%,#3cae5a 100%); /* IE10+ */
+				background: linear-gradient(top, #68ce80 0%,#3cae5a 100%); /* W3C */
+				filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#68ce80', endColorstr='#3cae5a',GradientType=0 ); /* IE6-9 */
+			}
+			
+			.password {
+				margin-top: 3px;
+				color: #0066cc;
+				font-family: Georgia, "Times New Roman", Times, serif;
+				font-family: "Times New Roman", Times, serif;
+				font-size: 28px;
+				font-family: "Courier New", Courier, monospace;
+				font-size: 26px;
+				font-weight: bold;
+				padding: 2px 0;
+				letter-spacing: 1px;
+				text-align: center;
+				border: 1px solid #cfdcf1;
+				letter-spacing: 0;
+				width: 700px;
+				margin-left: auto;
+				margin-right: auto;
+			}
+		</style>
+		<script type="text/javascript" src="//ajax.googleapis.com/ajax/libs/jquery/1/jquery.min.js"></script>
+		<script type="text/javascript" src="jquery-lang.js"></script>
+		<script type="text/javascript" src="langpack/fr.js"></script>
+	</head>
+	<body>
+		<div id="title"><a href="https://passwordgenerator.clicface.fr">passwordgenerator.clicface.fr</a></div>
+		<p></p>
+		<div id="langChanger"><a href="javascript:window.lang.change('en');">Switch to English</a> | <a href="javascript:window.lang.change('fr');">Switch to French</a></div>
+		<div id="option_choice">
+			<form action="">
+				<ul class="checkboxlist">
+					<li class="length_item">
+						<label for="length_chars_select" lang="en">password character length</label>
+						<select name="length_chars_select" id="length_chars_select">
+							<option value="4" >4</option>
+							<option value="5" >5</option>
+							<option value="6" >6</option>
+							<option value="7" >7</option>
+							<option value="8" selected="selected">8</option>
+							<option value="9" >9</option>
+							<option value="10" >10</option>
+							<option value="11" >11</option>
+							<option value="12" >12</option>
+							<option value="13" >13</option>
+							<option value="14" >14</option>
+							<option value="15" >15</option>
+							<option value="16" >16</option>
+							<option value="17" >17</option>
+							<option value="18" >18</option>
+							<option value="19" >19</option>
+							<option value="20" >20</option>
+							<option value="21" >21</option>
+							<option value="22" >22</option>
+							<option value="23" >23</option>
+							<option value="24" >24</option>
+							<option value="25" >25</option>
+							<option value="26" >26</option>
+							<option value="27" >27</option>
+							<option value="28" >28</option>
+							<option value="29" >29</option>
+							<option value="30" >30</option>
+							<option value="31" >31</option>
+							<option value="32" >32</option>
+						</select>
+					</li>
+					<li class="checked_item"><input type="checkbox" name="alphalower_chars_checkbox" id="alphalower_chars_checkbox" checked="checked" /><label for="alphalower_chars_checkbox"><span lang="en">string letters</span> <span class="chars_example">[ a b c d e f g h ... x y z ]</span></label></li>
+					<li class="checked_item"><input type="checkbox" name="alphaupper_chars_checkbox" id="alphaupper_chars_checkbox" checked="checked" /><label for="alphaupper_chars_checkbox"><span lang="en">capital letters</span> <span class="chars_example">[ A B C D E F G H... X Y Z ]</span></label></li>
+					<li class="checked_item"><input type="checkbox" name="num_chars_checkbox" id="num_chars_checkbox" checked="checked" /><label for="num_chars_checkbox"><span lang="en">digits</span> <span class="chars_example">[ 0 1 2 3 4 5 6 7 8 9 ]</span></label></li>
+					<li class="unchecked_item"><input type="checkbox" name="special_chars_checkbox" id="special_chars_checkbox" /><label for="special_chars_checkbox"><span lang="en">special symbols</span> <span class="chars_example">[  ~ ! @ # $ % ... &lt; &gt; / ? ]</span></label></li>
+					<li class="unchecked_item"><input type="checkbox" name="ambiguous_chars_checkbox" id="ambiguous_chars_checkbox" /><label for="ambiguous_chars_checkbox"><span lang="en">ambiguous characters</span> <span class="chars_example">[ 0 O I 1 l ]</span></label></li>
+				</ul>
+			</form>
+		</div>
+		<p><a href="#" id="generate" lang="en">Generate Password</a></p>
+		<script type="text/javascript">
+			//<![CDATA[
+			(function($) {
+				$.generateRandomPassword = function(length, AlphaLower, AlphaUpper, Num, Special, Ambiguous) {
+					length = typeof length !== 'undefined' ? length : 8;
+					AlphaLower = typeof AlphaLower !== 'undefined' ? AlphaLower : true;
+					AlphaUpper = typeof AlphaUpper !== 'undefined' ? AlphaUpper : true;
+					Num = typeof Num !== 'undefined' ? Num : true;
+					Special = typeof Special !== 'undefined' ? Special : false;
+					Ambiguous = typeof Ambiguous !== 'undefined' ? Ambiguous : false;
+					var password = '';
+					var chars = '';
+					if (AlphaLower) chars += 'abcdefghijkmnopqrstuvwxyz';
+					if (AlphaUpper) chars += 'ABCDEFGHJKLMNPQRSTUVWXYZ';
+					if (Num) chars += '23456789';
+					if (Special) chars += '~!@#$%^&*()-_=+[]{};:,.<>/?';
+					if (AlphaLower && Ambiguous) chars += 'l';
+					if (AlphaLower && Ambiguous) chars += 'IO';
+					if (Num && Ambiguous) chars += '01';
+					if (!AlphaLower && !AlphaLower && !Num && Ambiguous) chars += 'lIO01';
+					if (chars == '') return window.lang.convert('Please make at least one selection');
+					var list = chars.split('');
+					var len = list.length, i = 0;
+					do {
+						i++;
+						var index = Math.floor(Math.random() * len);
+						password += list[index];
+					} while(i < length);
+					return password;
+				};
+			})(jQuery);
+			
+			$(function() {
+				$('#generate').click(function(event) {
+					var pwd = $.generateRandomPassword(
+						$("#length_chars_select").val(),
+						$("#alphalower_chars_checkbox").is(":checked"),
+						$("#alphaupper_chars_checkbox").is(":checked"),
+						$("#num_chars_checkbox").is(":checked"),
+						$("#special_chars_checkbox").is(":checked"),
+						$("#ambiguous_chars_checkbox").is(":checked")
+					);
+					$('<p class="password"/>').text(pwd).
+					insertAfter($(this).parent());
+					event.preventDefault();
+				});
+
+			});
+			
+			$( '.checkboxlist' ).on( 'click', 'input:checkbox', function () {
+				$( this ).parent().toggleClass( 'checked_item', this.checked ); 
+				$( this ).parent().toggleClass( 'unchecked_item' ); 
+			});
+			
+			window.lang = new jquery_lang_js();
+			$().ready(function () {
+				window.lang.run();
+			});
+			
+			var userLang = (navigator.language) ? navigator.language : navigator.userLanguage;
+			if (userLang == 'fr') window.lang.change('fr');
+			
+			//]]>
+		</script>
+	</body>
+</html>
