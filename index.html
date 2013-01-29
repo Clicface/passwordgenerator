@@ -4,179 +4,8 @@
 	<head>
 		<title>Random Password Generator - Clicface</title>
 		<meta http-equiv="content-type" content="text/html; charset=UTF-8" />
-		<link href="//fonts.googleapis.com/css?family=Luckiest+Guy" rel="stylesheet" type="text/css" />
-		<style type="text/css">
-			body {
-				font-family: Verdana, Geneva, sans-serif;
-				background-color: #f1f1f1;
-				margin: 10px;
-			}
-			#langChanger {
-				font-family:Verdana,Geneva,sans-serif;
-				font-size: 12px;
-				margin-bottom: 10px;
-				text-align: center;
-			}
-			#option_choice {
-				width: 500px;
-				margin-left: auto;
-				margin-right: auto;
-			}
-			.length_item, .checked_item, .unchecked_item {
-				border-bottom-left-radius: 4px;
-				border-bottom-right-radius: 4px;
-				border-bottom-style: solid;
-				border-bottom-width: 1px;
-				border-collapse: collapse;
-				border-left-color: rgb(0, 0, 0);
-				border-left-style: solid;
-				border-left-width: 1px;
-				border-right-color: rgb(0, 0, 0);
-				border-right-style: solid;
-				border-right-width: 1px;
-				border-top-color: rgb(0, 0, 0);
-				border-top-left-radius: 4px;
-				border-top-right-radius: 4px;
-				border-top-style: solid;
-				border-top-width: 1px;
-				box-shadow: rgb(204, 204, 204) 0px 1px 1px 0px inset, rgba(0, 0, 0, 0.611765) 0px 1px 2px 0px;
-				display: block;
-			}
-			.length_item {
-				background: #CCCCCC;
-				text-align: center;
-			}
-			.checked_item {
-				background: #66FF66;
-			}
-			.unchecked_item {
-				background: #FF6666;
-			}
-			select {
-				font-size: 16px;
-			}
-			input[type="checkbox"] {
-				display: none;
-			}
-			ul {
-				font-family: Verdana, Arial, Helvetica, sans-serif;
-				font-style: normal;
-				line-height: 2em;
-				font-weight: normal;
-				font-variant: normal;
-				text-transform: none;
-				text-indent: 5px;
-				list-style-position: outside;
-				list-style-type: none;
-				padding: 6px;
-				margin: 2px;
-			}
-			li {
-				padding: 6px;
-				margin: 2px;
-			}
-			.chars_example {
-				font-family:'Courier New', Courier, monospace;
-				float: right;
-			}
-			.checked_item label, .unchecked_item label {
-				display:block;
-			}
-			#title a {
-				font-family: "Luckiest Guy", Arial, serif;
-				font-size: 32px;
-				color:#CE3131;
-				text-decoration: none;
-				text-shadow: 2px 2px 2px #aaa;
-				text-align : center;
-				padding: 10px;
-				display: block;
-			}
-			
-			#generate {
-				border-collapse: collapse;
-				color: rgb(255, 255, 255);
-				cursor: auto;
-				display: block;
-				font-family: Arial, Helvetica, sans-serif;
-				font-size: 16px;
-				font-weight: bold;
-				height: 40px;
-				line-height: 40px;
-				margin-bottom: 0px;
-				margin-left: 0px;
-				margin-right: 0px;
-				margin-top: 0px;
-				padding-bottom: 0px;
-				padding-left: 20px;
-				padding-right: 20px;
-				padding-top: 0px;
-				text-align: center;
-				text-decoration: none;
-				text-shadow: rgb(17, 74, 30) 0px 1px 2px, rgb(17, 74, 30) 0px 1px 0px;
-				width: 255px;
-				-webkit-background-clip: border-box;
-				-webkit-background-origin: padding-box;
-				-webkit-background-size: auto;
-				-webkit-border-image: none;
-				-webkit-box-shadow: rgb(148, 221, 166) 0px 1px 1px 0px inset, rgba(0, 0, 0, 0.611765) 0px 1px 2px 0px;
-				background-attachment: scroll;
-				background-clip: border-box;
-				background-color: rgba(0, 0, 0, 0);
-				background-image: -webkit-linear-gradient(top, rgb(93, 187, 115) 0%, rgb(45, 144, 71) 100%);
-				background-origin: padding-box;
-				background-size: auto;
-				border-bottom-color: rgb(29, 105, 45);
-				border-bottom-left-radius: 4px;
-				border-bottom-right-radius: 4px;
-				border-bottom-style: solid;
-				border-bottom-width: 1px;
-				border-collapse: collapse;
-				border-left-color: rgb(29, 105, 45);
-				border-left-style: solid;
-				border-left-width: 1px;
-				border-right-color: rgb(29, 105, 45);
-				border-right-style: solid;
-				border-right-width: 1px;
-				border-top-color: rgb(29, 105, 45);
-				border-top-left-radius: 4px;
-				border-top-right-radius: 4px;
-				border-top-style: solid;
-				border-top-width: 1px;
-				box-shadow: rgb(148, 221, 166) 0px 1px 1px 0px inset, rgba(0, 0, 0, 0.611765) 0px 1px 2px 0px;
-				margin-left: auto;
-				margin-right: auto;
-			}
-			#generate:hover {
-				background: #68ce80; /* Old browsers */
-				background: -moz-linear-gradient(top, #68ce80 0%, #3cae5a 100%); /* FF3.6+ */
-				background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#68ce80), color-stop(100%,#3cae5a)); /* Chrome,Safari4+ */
-				background: -webkit-linear-gradient(top, #68ce80 0%,#3cae5a 100%); /* Chrome10+,Safari5.1+ */
-				background: -o-linear-gradient(top, #68ce80 0%,#3cae5a 100%); /* Opera 11.10+ */
-				background: -ms-linear-gradient(top, #68ce80 0%,#3cae5a 100%); /* IE10+ */
-				background: linear-gradient(top, #68ce80 0%,#3cae5a 100%); /* W3C */
-				filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#68ce80', endColorstr='#3cae5a',GradientType=0 ); /* IE6-9 */
-			}
-			
-			.password {
-				margin-top: 3px;
-				color: #0066cc;
-				font-family: Georgia, "Times New Roman", Times, serif;
-				font-family: "Times New Roman", Times, serif;
-				font-size: 28px;
-				font-family: "Courier New", Courier, monospace;
-				font-size: 26px;
-				font-weight: bold;
-				padding: 2px 0;
-				letter-spacing: 1px;
-				text-align: center;
-				border: 1px solid #cfdcf1;
-				letter-spacing: 0;
-				width: 700px;
-				margin-left: auto;
-				margin-right: auto;
-			}
-		</style>
+		<link rel="stylesheet" type="text/css" href="//fonts.googleapis.com/css?family=Luckiest+Guy" />
+		<link rel="stylesheet" type="text/css" href="style.css" />
 		<script type="text/javascript" src="//ajax.googleapis.com/ajax/libs/jquery/1/jquery.min.js"></script>
 		<script type="text/javascript" src="jquery-lang.js"></script>
 		<script type="text/javascript" src="langpack/fr.js"></script>
@@ -185,6 +14,11 @@
 		<div id="title"><a href="https://passwordgenerator.clicface.fr">passwordgenerator.clicface.fr</a></div>
 		<p></p>
 		<div id="langChanger"><a href="javascript:window.lang.change('en');">Switch to English</a> | <a href="javascript:window.lang.change('fr');">Switch to French</a></div>
+		<div id="description">
+			<span lang="en">Choose the options below then submit, and you will get your own unique password instantly generated by our script. All random passwords generated by this software are available on your local computer only. No passwords are transferred over the Internet. No personal data is stored by or captured through the site.</span><br />
+			<br /><span lang="en">You will always find the latest source code version of this script in our GitHub repository. You can check out the source code :</span><br /><span><a href="https://github.com/clicface/passwordgenerator">https://github.com/clicface/passwordgenerator</a></span><br />
+			<br /><span lang="en">Powered by Clicface</span><br /><span><a href="http://www.clicface.fr">www.clicface.fr</a></span>
+		</div>
 		<div id="option_choice">
 			<form action="">
 				<ul class="checkboxlist">
@@ -295,5 +129,17 @@
 			
 			//]]>
 		</script>
+		<!-- Piwik --> 
+		<script type="text/javascript">
+			var pkBaseURL = (("https:" == document.location.protocol) ? "https://analytics.clicface.fr/" : "http://analytics.clicface.fr/");
+			document.write(unescape("%3Cscript src='" + pkBaseURL + "piwik.js' type='text/javascript'%3E%3C/script%3E"));
+			</script><script type="text/javascript">
+			try {
+				var piwikTracker = Piwik.getTracker(pkBaseURL + "piwik.php", 25);
+				piwikTracker.trackPageView();
+				piwikTracker.enableLinkTracking();
+			} catch( err ) {}
+		</script><noscript><p><img src="http://analytics.clicface.fr/piwik.php?idsite=25" style="border:0" alt="" /></p></noscript>
+		<!-- End Piwik Tracking Code -->
 	</body>
 </html>
