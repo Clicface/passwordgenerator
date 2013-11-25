@@ -60,7 +60,7 @@
 					<li class="checked_item"><input type="checkbox" name="alphaupper_chars_checkbox" id="alphaupper_chars_checkbox" checked="checked" /><label for="alphaupper_chars_checkbox"><span lang="en">capital letters</span> <span class="chars_example">[ A B C D E F G H... X Y Z ]</span></label></li>
 					<li class="checked_item"><input type="checkbox" name="num_chars_checkbox" id="num_chars_checkbox" checked="checked" /><label for="num_chars_checkbox"><span lang="en">digits</span> <span class="chars_example">[ 0 1 2 3 4 5 6 7 8 9 ]</span></label></li>
 					<li class="unchecked_item"><input type="checkbox" name="special_chars_checkbox" id="special_chars_checkbox" /><label for="special_chars_checkbox"><span lang="en">special symbols</span> <span class="chars_example">[  ~ ! @ # $ % ... &lt; &gt; / ? ]</span></label></li>
-					<li class="unchecked_item"><input type="checkbox" name="ambiguous_chars_checkbox" id="ambiguous_chars_checkbox" /><label for="ambiguous_chars_checkbox"><span lang="en">ambiguous characters</span> <span class="chars_example">[ 0 O I 1 l ]</span></label></li>
+					<li class="unchecked_item"><input type="checkbox" name="ambiguous_chars_checkbox" id="ambiguous_chars_checkbox" /><label for="ambiguous_chars_checkbox"><span lang="en">ambiguous characters</span> <span class="chars_example">[ i o 0 O I 1 l ]</span></label></li>
 				</ul>
 			</form>
 		</div>
@@ -77,14 +77,14 @@
 					Ambiguous = typeof Ambiguous !== 'undefined' ? Ambiguous : false;
 					var password = '';
 					var chars = '';
-					if (AlphaLower) chars += 'abcdefghijkmnopqrstuvwxyz';
+					if (AlphaLower) chars += 'abcdefghjkmnpqrstuvwxyz';
 					if (AlphaUpper) chars += 'ABCDEFGHJKLMNPQRSTUVWXYZ';
 					if (Num) chars += '23456789';
 					if (Special) chars += '~!@#$%^&*()-_=+[]{};:,.<>/?';
-					if (AlphaLower && Ambiguous) chars += 'l';
+					if (AlphaLower && Ambiguous) chars += 'iol';
 					if (AlphaLower && Ambiguous) chars += 'IO';
 					if (Num && Ambiguous) chars += '01';
-					if (!AlphaLower && !AlphaLower && !Num && Ambiguous) chars += 'lIO01';
+					if (!AlphaLower && !Num && Ambiguous) chars += 'iolIO01';
 					if (chars == '') return window.lang.convert('Please make at least one selection');
 					var list = chars.split('');
 					var len = list.length, i = 0;
