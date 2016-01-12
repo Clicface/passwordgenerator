@@ -1,0 +1,195 @@
+html { 
+  margin:0;
+  padding:0;
+  background: url(../img/bg.jpg) no-repeat center fixed; 
+  -webkit-background-size: cover;
+  background-size: cover;
+}
+body {
+  font-family: Verdana, Geneva, sans-serif;
+  margin: 0 auto;
+  max-width: 900px;
+}
+a, a:visited {
+  color:#0000FF;
+}
+#langChanger, #description, #desciption a:visited {
+  font-family:Verdana,Geneva,sans-serif;
+  font-size: 12px;
+  margin-bottom: 10px;
+  text-align: center;
+  color: inherit;
+}
+#option_choice {
+  width: 350px;
+  margin-left: auto;
+  margin-right: auto;
+}
+.length_item, .checked_item, .unchecked_item {
+  border-radius: 4px;
+  border: 1px solid rgba(36, 36, 36, 0.66);
+  box-shadow: rgb(204, 204, 204) 0px 1px 1px 0px inset, rgba(0, 0, 0, 0.611765) 0px 1px 2px 0px;
+  display: block;
+}
+.length_item {
+  text-align: center;
+  background: #f2f5f6;
+  background: -moz-linear-gradient(top, #f2f5f6 0%, #e3eaed 37%, #c8d7dc 100%);
+  background: -webkit-linear-gradient(top, #f2f5f6 0%,#e3eaed 37%,#c8d7dc 100%);
+  background: linear-gradient(to bottom, #f2f5f6 0%,#e3eaed 37%,#c8d7dc 100%);
+  filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#f2f5f6', endColorstr='#c8d7dc',GradientType=0 );
+}
+.checked_item {
+  background: #d2ff52;
+  background: -moz-linear-gradient(top, #d2ff52 0%, #91e842 100%);
+  background: -webkit-linear-gradient(top, #d2ff52 0%,#91e842 100%);
+  background: linear-gradient(to bottom, #d2ff52 0%,#91e842 100%);
+  filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#d2ff52', endColorstr='#91e842',GradientType=0 );
+}
+.unchecked_item {
+  background: #ff3019;
+  background: -moz-linear-gradient(top, #ff3019 0%, #cf0404 100%);
+  background: -webkit-linear-gradient(top, #ff3019 0%,#cf0404 100%);
+  background: linear-gradient(to bottom, #ff3019 0%,#cf0404 100%);
+  filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#ff3019', endColorstr='#cf0404',GradientType=0 );
+}
+select {
+  font-size: 16px;
+}
+input[type="checkbox"] {
+  display: none;
+}
+ul {
+  font-family: Verdana, Arial, Helvetica, sans-serif;
+  font-style: normal;
+  line-height: 2em;
+  font-weight: normal;
+  font-variant: normal;
+  text-transform: none;
+  text-indent: 5px;
+  list-style-position: outside;
+  list-style-type: none;
+  padding: 6px;
+  margin: 2px;
+}
+li {
+  padding: 6px;
+  margin: 2px;
+}
+label[for=length_chars_select],
+label[for=alphalower_chars_checkbox],
+label[for=alphaupper_chars_checkbox],
+label[for=num_chars_checkbox],
+label[for=special_chars_checkbox],
+label[for=ambiguous_chars_checkbox] {
+  font-size: 14px;
+}
+.chars_example {
+  font-family:'Courier New', Courier, monospace;
+  float: right;
+}
+.checked_item label, .unchecked_item label {
+  display:block;
+}
+#title a {
+  font-family: "Luckiest Guy", Arial, serif;
+  font-size: 32px;
+  color:#CE3131;
+  text-decoration: none;
+  text-shadow: 2px 2px 2px #aaa;
+  text-align : center;
+  padding: 10px;
+  display: block;
+}
+
+#generate {
+  border-collapse: collapse;
+  color: rgb(255, 255, 255);
+  cursor: auto;
+  display: block;
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 16px;
+  font-weight: bold;
+  height: 40px;
+  line-height: 40px;
+  margin-bottom: 0px;
+  margin-left: 0px;
+  margin-right: 0px;
+  margin-top: 0px;
+  padding-bottom: 0px;
+  padding-left: 20px;
+  padding-right: 20px;
+  padding-top: 0px;
+  text-align: center;
+  text-decoration: none;
+  text-shadow: rgb(17, 74, 30) 0px 1px 2px, rgb(17, 74, 30) 0px 1px 0px;
+  width: 255px;
+  -webkit-background-clip: border-box;
+  -webkit-background-origin: padding-box;
+  -webkit-background-size: auto;
+  -webkit-border-image: none;
+  -webkit-box-shadow: rgb(148, 221, 166) 0px 1px 1px 0px inset, rgba(0, 0, 0, 0.611765) 0px 1px 2px 0px;
+  background-attachment: scroll;
+  background-clip: border-box;
+  background-color: rgba(0, 0, 0, 0);
+  background-image: -webkit-linear-gradient(top, rgb(93, 187, 115) 0%, rgb(45, 144, 71) 100%);
+  background-origin: padding-box;
+  background-size: auto;
+  border-bottom-color: rgb(29, 105, 45);
+  border-bottom-left-radius: 4px;
+  border-bottom-right-radius: 4px;
+  border-bottom-style: solid;
+  border-bottom-width: 1px;
+  border-collapse: collapse;
+  border-left-color: rgb(29, 105, 45);
+  border-left-style: solid;
+  border-left-width: 1px;
+  border-right-color: rgb(29, 105, 45);
+  border-right-style: solid;
+  border-right-width: 1px;
+  border-top-color: rgb(29, 105, 45);
+  border-top-left-radius: 4px;
+  border-top-right-radius: 4px;
+  border-top-style: solid;
+  border-top-width: 1px;
+  box-shadow: rgb(148, 221, 166) 0px 1px 1px 0px inset, rgba(0, 0, 0, 0.611765) 0px 1px 2px 0px;
+  -moz-box-shadow: inset 0 1px 1px #94dda6, 0 1px 2px rgba(0,0,0,0.61);
+  background: #5dbb73;
+  background: -moz-linear-gradient(top, #5dbb73 0%, #2d9047 100%);
+  background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#5dbb73), color-stop(100%,#2d9047));
+  background: -o-linear-gradient(top, #5dbb73 0%,#2d9047 100%);
+  background: -ms-linear-gradient(top, #5dbb73 0%,#2d9047 100%);
+  background: linear-gradient(top, #5dbb73 0%,#2d9047 100%);
+  filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#5dbb73', endColorstr='#2d9047',GradientType=0 );
+  margin-left: auto;
+  margin-right: auto;
+}
+#generate:hover {
+  background: #68ce80; /* Old browsers */
+  background: -moz-linear-gradient(top, #68ce80 0%, #3cae5a 100%); /* FF3.6+ */
+  background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#68ce80), color-stop(100%,#3cae5a)); /* Chrome,Safari4+ */
+  background: -webkit-linear-gradient(top, #68ce80 0%,#3cae5a 100%); /* Chrome10+,Safari5.1+ */
+  background: -o-linear-gradient(top, #68ce80 0%,#3cae5a 100%); /* Opera 11.10+ */
+  background: -ms-linear-gradient(top, #68ce80 0%,#3cae5a 100%); /* IE10+ */
+  background: linear-gradient(top, #68ce80 0%,#3cae5a 100%); /* W3C */
+  filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#68ce80', endColorstr='#3cae5a',GradientType=0 ); /* IE6-9 */
+}
+
+.password {
+  margin-top: 3px;
+  color: #0066cc;
+  font-family: Georgia, "Times New Roman", Times, serif;
+  font-family: "Times New Roman", Times, serif;
+  font-size: 28px;
+  font-family: "Courier New", Courier, monospace;
+  font-size: 26px;
+  font-weight: bold;
+  padding: 2px 0;
+  letter-spacing: 1px;
+  text-align: center;
+  border: 1px solid #cfdcf1;
+  letter-spacing: 0;
+  /* width: 700px; */
+  margin-left: auto;
+  margin-right: auto;
+}
