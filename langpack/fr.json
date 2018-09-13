@@ -11,6 +11,7 @@
 		"special symbols":"caractères spéciaux",
 		"ambiguous characters":"caractères ambigus",
 		"Generate Password":"Générer le mot de passe",
-		"Please make at least one selection":"veuillez effectuer au moins un choix"
+		"Please make at least one selection":"veuillez effectuer au moins un choix",
+		"click here to copy to clipboard":"cliquer ici pour copier dans le presse-papier"
 	}
 }
