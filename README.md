@@ -6,7 +6,6 @@ This application lets you generate random passwords easily. It was originally ma
 Features:
 * Generates safe passwords with jQuery
 * Configurable
-* Multi-language
 * Strength password estimation with [zxcvbn](https://github.com/dropbox/zxcvbn)
 
 Live demo: https://passwordgenerator.clicface.com
