@@ -141,47 +141,16 @@
 		<script src="https://cdn.jsdelivr.net/gh/Irrelon/jquery-lang-js/js/jquery-lang.js" integrity="sha384-mPtdPD0HrTzPephcinnEK0GlehEWzWpofqH0FDOax0vMgOTnru7fOWjYmToMPuwJ" crossorigin="anonymous"></script>
 		<script src="https://cdn.jsdelivr.net/npm/zxcvbn@4.4.2/dist/zxcvbn.js" integrity="sha256-9CxlH0BQastrZiSQ8zjdR6WVHTMSA5xKuP5QkEhPNRo=" crossorigin="anonymous"></script>
 		<script src="https://cdn.jsdelivr.net/npm/clipboard@2.0.1/dist/clipboard.min.js" integrity="sha256-hIvIxeqhGZF+VVeM55k0mJvWpQ6gTkWk3Emc+NmowYA=" crossorigin="anonymous"></script>
+		<script src="js/passwordgenerator.js"></script>
 		<script type="text/javascript">
 			//<![CDATA[
-			(function($) {
-				$.generateRandomPassword = function(length, AlphaLower, AlphaUpper, Num, HypenDashUnderscore, Special, Ambiguous) {
-					length = typeof length !== 'undefined' ? length : 8;
-					AlphaLower = typeof AlphaLower !== 'undefined' ? AlphaLower : true;
-					AlphaUpper = typeof AlphaUpper !== 'undefined' ? AlphaUpper : true;
-					Num = typeof Num !== 'undefined' ? Num : true;
-					HypenDashUnderscore = typeof HypenDashUnderscore !== 'undefined' ? HypenDashUnderscore : false;
-					Special = typeof Special !== 'undefined' ? Special : false;
-					Ambiguous = typeof Ambiguous !== 'undefined' ? Ambiguous : false;
-					var password = '';
-					var chars = '';
-					if (AlphaLower) chars += 'abcdefghjkmnpqrstuvwxyz';
-					if (AlphaUpper) chars += 'ABCDEFGHJKLMNPQRSTUVWXYZ';
-					if (Num) chars += '23456789';
-					if (HypenDashUnderscore) chars += '-_';
-					if (Special) chars += '~!@#$%^&*()=+[]{};:,.<>/?';
-					if (AlphaLower && Ambiguous) chars += 'iol';
-					if (AlphaLower && Ambiguous) chars += 'IO';
-					if (Num && Ambiguous) chars += '01';
-					if (!AlphaLower && !Num && Ambiguous) chars += 'iolIO01';
-					if (chars == '') return window.lang.convert('Please make at least one selection');
-					var list = chars.split('');
-					var len = list.length, i = 0;
-					do {
-						i++;
-						var index = Math.floor(Math.random() * len);
-						password += list[index];
-					} while(i < length);
-					return password;
-				};
-			})(jQuery);
-			
 			$('form').bind('submit', function(e) {
 				e.preventDefault();
 			});
 			
 			$(function() {
 				$('#generate').click(function(event) {
-					var pwd = $.generateRandomPassword(
+					var pwd = generateRandomPassword(
 						$("#length_chars_select").val(),
 						$("#alphalower_chars_checkbox").is(":checked"),
 						$("#alphaupper_chars_checkbox").is(":checked"),
