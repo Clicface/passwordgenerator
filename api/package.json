@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "description": "Generates random passwords easily",
   "engines": {
-    "node": "14.x"
+    "node": ">=14.x"
   },
   "main": "index.js",
   "scripts": {
@@ -14,8 +14,8 @@
   "license": "MIT",
   "dependencies": {
     "cors": "^2.8.5",
-    "dotenv": "^10.0.0",
-    "express": "^4.17.3",
+    "dotenv": "^16.4.5",
+    "express": "^4.19.2",
     "zxcvbn": "^4.4.2"
   }
 }
