@@ -1,3 +1,7 @@
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+}
+
 .bg-light {
   background-color: #f8f9fa!important;
 }
@@ -19,7 +23,7 @@
   width: 60px;
 }
 .chars_example {
-  font-family:'Courier New', Courier, monospace;
+  font-family: 'Courier New', Courier, 'Liberation Mono', 'DejaVu Sans Mono', Monaco, 'Lucida Console', monospace;
 }
 .password-string {
   font-weight: bold;
