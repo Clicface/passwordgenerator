@@ -1,1 +1,3 @@
 /api/node_modules/
+.claude/
+.qodo/
