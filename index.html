@@ -162,7 +162,7 @@
 						);
 					} catch (err) {
 						$('#password-container').show();
-						$('#password-container-top').text(lang.convert(err.message));
+						$('#password-container-top').text(lang.translate(err.message));
 						$('#password-container-bottom').css('background', '#C33');
 						event.preventDefault();
 						return;
