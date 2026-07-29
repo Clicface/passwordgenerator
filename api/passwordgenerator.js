@@ -7,10 +7,19 @@ require('dotenv').config()
 const pwdgenres = require('./../js/passwordgenerator.js');
 app.use(express.json());
 
+// Scoring cost grows far faster than the password itself: 120 chars scores in
+// ~0.15s, 300 in ~1.3s, 500 in ~3.5s. Left unbounded, a single request could
+// pin a CPU for minutes, so `length` is clamped to the range the front-end
+// input already advertises (min=3 max=120).
+const MIN_LENGTH = 3;
+const MAX_LENGTH = 120;
+const DEFAULT_LENGTH = 8;
+
 app.get('/generate', cors(), (req, res)=>{
-	let {length = 8, AlphaLower = true, AlphaUpper = true, Num = true, HypenDashUnderscore = false, Special = false, Ambiguous = false} = req.query;
-	
-	length = !isNaN(length) == true ? length : 8;
+	let {length = DEFAULT_LENGTH, AlphaLower = true, AlphaUpper = true, Num = true, HypenDashUnderscore = false, Special = false, Ambiguous = false} = req.query;
+
+	length = parseInt(length, 10);
+	length = isNaN(length) ? DEFAULT_LENGTH : Math.min(Math.max(length, MIN_LENGTH), MAX_LENGTH);
 	AlphaLower = AlphaLower.toString().toLowerCase() == 'false' ? false : true;
 	AlphaUpper = AlphaUpper.toString().toLowerCase() == 'false' ? false : true;
 	Num = Num.toString().toLowerCase() == 'false' ? false : true;

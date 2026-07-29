@@ -40,13 +40,13 @@ const tests = [
 	['honours the length parameter', '?length=32', res => {
 		assert.strictEqual(res.body.password.length, 32);
 	}],
-	['adds special characters on demand', '?length=200&Special=true', res => {
+	['adds special characters on demand', '?length=120&Special=true', res => {
 		assert.match(res.body.password, /[~!@#$%^&*()=+\[\]{};:,.<>/?]/);
 	}],
-	['drops digits when Num=false', '?length=200&Num=false', res => {
+	['drops digits when Num=false', '?length=120&Num=false', res => {
 		assert.doesNotMatch(res.body.password, /[0-9]/);
 	}],
-	['excludes ambiguous characters by default', '?length=200', res => {
+	['excludes ambiguous characters by default', '?length=120', res => {
 		assert.doesNotMatch(res.body.password, /[ilIO01]/);
 	}],
 	['returns a zxcvbn score', '?length=24&Special=true', res => {
@@ -68,6 +68,25 @@ const tests = [
 	['stays up after a rejected request', '?length=16', res => {
 		assert.strictEqual(res.status, 200);
 		assert.strictEqual(res.body.password.length, 16);
+	}],
+	['clamps an oversized length', '?length=100000000', res => {
+		assert.strictEqual(res.body.password.length, 120);
+	}],
+	['clamps a below-minimum length', '?length=0', res => {
+		assert.strictEqual(res.body.password.length, 3);
+	}],
+	['clamps a negative length', '?length=-5', res => {
+		assert.strictEqual(res.body.password.length, 3);
+	}],
+	['falls back to the default on a non-numeric length', '?length=abc', res => {
+		assert.strictEqual(res.body.password.length, 8);
+	}],
+	['answers an oversized length quickly', '?length=100000000', async () => {
+		// Guards the DoS directly: unclamped, this request never returned at all.
+		const started = process.hrtime.bigint();
+		await get('?length=100000000');
+		const ms = Number(process.hrtime.bigint() - started) / 1e6;
+		assert.ok(ms < 2000, `took ${Math.round(ms)}ms, expected well under 2000ms`);
 	}]
 ];
 
