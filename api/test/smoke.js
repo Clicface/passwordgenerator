@@ -56,6 +56,18 @@ const tests = [
 	['never repeats a password', '?length=24', async res => {
 		const other = await get('?length=24');
 		assert.notStrictEqual(res.body.password, other.body.password);
+	}],
+	['rejects an empty character set with a 400', '?AlphaLower=false&AlphaUpper=false&Num=false', res => {
+		assert.strictEqual(res.status, 400);
+		assert.strictEqual(res.body.error, 'Please make at least one selection');
+		assert.ok(!('password' in res.body), 'an error must not be served as a password');
+	}],
+	['never leaks a stack trace', '?AlphaLower=false&AlphaUpper=false&Num=false', res => {
+		assert.doesNotMatch(JSON.stringify(res.body), /at Object\.|ReferenceError|\/home\/|node_modules/);
+	}],
+	['stays up after a rejected request', '?length=16', res => {
+		assert.strictEqual(res.status, 200);
+		assert.strictEqual(res.body.password.length, 16);
 	}]
 ];
 

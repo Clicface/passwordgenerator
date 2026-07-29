@@ -18,8 +18,21 @@ app.get('/generate', cors(), (req, res)=>{
 	Special = Special.toString().toLowerCase() == 'true' ? true : false;
 	Ambiguous = Ambiguous.toString().toLowerCase() == 'true' ? true : false;
 	
-	let pwd = pwdgenres.generateRandomPassword(length, AlphaLower, AlphaUpper, Num, HypenDashUnderscore, Special, Ambiguous);
+	let pwd;
+	try {
+		pwd = pwdgenres.generateRandomPassword(length, AlphaLower, AlphaUpper, Num, HypenDashUnderscore, Special, Ambiguous);
+	} catch (err) {
+		// Disabling every character class is a bad request, not a server fault.
+		return res.status(400).json({error: err.message}).end();
+	}
 	res.status(200).json({password: pwd, score: zxcvbn(pwd).score}).end();
+})
+
+// Without this, Express' default handler answers unexpected errors with a full
+// stack trace, leaking absolute filesystem paths to the caller.
+app.use((err, req, res, next)=>{
+	console.error(err);
+	res.status(500).json({error: 'Internal server error'}).end();
 })
 
 app.listen(process.env.PORT || 3000);

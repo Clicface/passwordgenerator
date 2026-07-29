@@ -17,7 +17,11 @@ function generateRandomPassword(length, AlphaLower, AlphaUpper, Num, HypenDashUn
 	if (AlphaLower && Ambiguous) chars += 'IO';
 	if (Num && Ambiguous) chars += '01';
 	if (!AlphaLower && !Num && Ambiguous) chars += 'iolIO01';
-	if (chars == '') return window.lang.convert('Please make at least one selection');
+	// Signalled as an error rather than returned in-band: this module also runs
+	// server-side, where `window` does not exist and where an error message
+	// returned as if it were a password would be served as one. The message
+	// doubles as the langpack key so callers can translate it.
+	if (chars == '') throw new Error('Please make at least one selection');
 	var list = chars.split('');
 	var len = list.length, i = 0;
 	do {
