@@ -149,15 +149,24 @@
 			
 			$(function() {
 				$('#generate').click(function(event) {
-					var pwd = generateRandomPassword(
-						$("#length_chars_select").val(),
-						$("#alphalower_chars_checkbox").is(":checked"),
-						$("#alphaupper_chars_checkbox").is(":checked"),
-						$("#num_chars_checkbox").is(":checked"),
-						$("#hyphen_dash_underscore").is(":checked"),
-						$("#special_chars_checkbox").is(":checked"),
-						$("#ambiguous_chars_checkbox").is(":checked")
-					);
+					var pwd;
+					try {
+						pwd = generateRandomPassword(
+							$("#length_chars_select").val(),
+							$("#alphalower_chars_checkbox").is(":checked"),
+							$("#alphaupper_chars_checkbox").is(":checked"),
+							$("#num_chars_checkbox").is(":checked"),
+							$("#hyphen_dash_underscore").is(":checked"),
+							$("#special_chars_checkbox").is(":checked"),
+							$("#ambiguous_chars_checkbox").is(":checked")
+						);
+					} catch (err) {
+						$('#password-container').show();
+						$('#password-container-top').text(lang.convert(err.message));
+						$('#password-container-bottom').css('background', '#C33');
+						event.preventDefault();
+						return;
+					}
 					var score = zxcvbn(pwd).score;
 					switch(score) {
 						case 0:
