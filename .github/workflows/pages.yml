@@ -31,9 +31,7 @@ jobs:
           mkdir -p _site
           cp index.html _site/
           cp -r css js langpack _site/
-          # favicon.png is referenced by index.html but has never been in the
-          # repo, so copy it only if it appears later.
-          [ -f favicon.png ] && cp favicon.png _site/ || true
+          cp favicon.svg favicon.png _site/
 
       - name: Fail if the API or tests leaked into the upload
         run: |
@@ -44,8 +42,24 @@ jobs:
             fi
           done
           test -f _site/index.html
-          test -f _site/js/passwordgenerator.js
-          test -f _site/js/vendor/jquery.min.js
+
+      # Every local file index.html references must be in the upload. Derived
+      # from the page rather than a hardcoded list: the previous version
+      # asserted jquery.min.js was present and broke the deploy the moment
+      # jQuery was removed, which is exactly how a fixed list rots.
+      - name: Fail if the page references something that was not published
+        run: |
+          missing=0
+          for ref in $(grep -oE '(src|href)="[^"]+"' _site/index.html | cut -d'"' -f2); do
+            case "$ref" in
+              http*|//*|\#*|data:*) continue ;;
+            esac
+            if [ ! -f "_site/$ref" ]; then
+              echo "::error::index.html references $ref, which is not in the upload"
+              missing=1
+            fi
+          done
+          [ "$missing" -eq 0 ] || exit 1
           echo "published tree:"
           find _site -type f | sort
 

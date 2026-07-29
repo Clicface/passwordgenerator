@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" role="img" aria-label="passwordgenerator">
+	<rect width="32" height="32" rx="7" fill="#2f6fed"/>
+	<!-- Three dots: a masked password. Chosen because it stays legible at 16px,
+	     where a key or padlock glyph turns into an unreadable smudge. -->
+	<circle cx="9" cy="16" r="3.2" fill="#fff"/>
+	<circle cx="16" cy="16" r="3.2" fill="#fff"/>
+	<circle cx="23" cy="16" r="3.2" fill="#fff"/>
+</svg>
