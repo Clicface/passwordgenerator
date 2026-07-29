@@ -87,13 +87,22 @@ const tests = [
 		await get('?length=100000000');
 		const ms = Number(process.hrtime.bigint() - started) / 1e6;
 		assert.ok(ms < 2000, `took ${Math.round(ms)}ms, expected well under 2000ms`);
+	}],
+	['starts without printing anything to stdout', '', () => {
+		// dotenv 17 prints a banner carrying a rotating third-party ad unless
+		// quiet is set. Nothing here should write to stdout at all.
+		assert.strictEqual(serverStdout.trim(), '', `server wrote to stdout:\n${serverStdout}`);
 	}]
 ];
 
+// stdout is captured rather than inherited so a test can assert the server
+// starts silently. stderr stays inherited so real crashes remain visible.
+let serverStdout = '';
 const server = spawn(process.execPath, [path.join(__dirname, '..', 'passwordgenerator.js')], {
 	env: {...process.env, PORT},
-	stdio: ['ignore', 'inherit', 'inherit']
+	stdio: ['ignore', 'pipe', 'inherit']
 });
+server.stdout.on('data', chunk => serverStdout += chunk);
 server.on('error', err => {
 	console.error(`failed to start the server: ${err.message}`);
 	process.exit(1);

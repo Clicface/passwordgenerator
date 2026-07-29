@@ -1,3 +1,9 @@
 /api/node_modules/
 .claude/
 .qodo/
+
+# dotenv reads these, so they are where secrets end up. Nothing was ignoring
+# them, and none has ever been committed -- keep it that way.
+.env
+.env.*
+!.env.example

@@ -2,7 +2,9 @@ const express = require('express');
 const app = express();
 const cors = require('cors');
 const zxcvbn = require('zxcvbn');
-require('dotenv').config()
+// quiet silences the banner dotenv 17 prints to stdout on every load, which
+// carries a rotating third-party ad and would otherwise land in the API's logs.
+require('dotenv').config({quiet: true})
 
 const pwdgenres = require('./../js/passwordgenerator.js');
 app.use(express.json());
