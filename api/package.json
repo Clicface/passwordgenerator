@@ -5,10 +5,10 @@
   "engines": {
     "node": ">=14.x"
   },
-  "main": "index.js",
+  "main": "passwordgenerator.js",
   "scripts": {
-    "start": "node index.js",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "node passwordgenerator.js",
+    "test": "node test/smoke.js"
   },
   "author": "John",
   "license": "MIT",
