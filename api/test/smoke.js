@@ -69,24 +69,66 @@ const tests = [
 		assert.strictEqual(res.status, 200);
 		assert.strictEqual(res.body.password.length, 16);
 	}],
-	['clamps an oversized length', '?length=100000000', res => {
+	['accepts the documented bounds', '?length=3', res => {
+		assert.strictEqual(res.status, 200);
+		assert.strictEqual(res.body.password.length, 3);
+	}],
+	['accepts the upper bound', '?length=120', res => {
+		assert.strictEqual(res.status, 200);
 		assert.strictEqual(res.body.password.length, 120);
 	}],
-	['clamps a below-minimum length', '?length=0', res => {
-		assert.strictEqual(res.body.password.length, 3);
+	['rejects an oversized length', '?length=100000000', res => {
+		assert.strictEqual(res.status, 400);
+		assert.match(res.body.error, /between 3 and 120/);
+		assert.ok(!('password' in res.body), 'must not answer with a password');
 	}],
-	['clamps a negative length', '?length=-5', res => {
-		assert.strictEqual(res.body.password.length, 3);
+	['rejects a below-minimum length', '?length=2', res => {
+		assert.strictEqual(res.status, 400);
 	}],
-	['falls back to the default on a non-numeric length', '?length=abc', res => {
-		assert.strictEqual(res.body.password.length, 8);
+	['rejects a negative length', '?length=-5', res => {
+		assert.strictEqual(res.status, 400);
+	}],
+	['rejects a non-integer length', '?length=abc', res => {
+		assert.strictEqual(res.status, 400);
+		assert.match(res.body.error, /integer/);
+	}],
+	['rejects a fractional length', '?length=12.7', res => {
+		assert.strictEqual(res.status, 400);
 	}],
 	['answers an oversized length quickly', '?length=100000000', async () => {
-		// Guards the DoS directly: unclamped, this request never returned at all.
+		// Guards the DoS directly: unbounded, this request never returned at all.
 		const started = process.hrtime.bigint();
 		await get('?length=100000000');
 		const ms = Number(process.hrtime.bigint() - started) / 1e6;
 		assert.ok(ms < 2000, `took ${Math.round(ms)}ms, expected well under 2000ms`);
+	}],
+	['rate-limits a burst and says when to retry', '', async () => {
+		// The suite runs with a high ceiling so other tests are unaffected; this
+		// one spins up its own server with a low one.
+		const {spawn} = require('child_process');
+		const port = Number(PORT) + 1;
+		const child = spawn(process.execPath, [path.join(__dirname, '..', 'passwordgenerator.js')], {
+			env: {...process.env, PORT: port, RATE_LIMIT_MAX: '3'},
+			stdio: ['ignore', 'ignore', 'inherit']
+		});
+		try {
+			const hit = () => new Promise((resolve, reject) => {
+				http.get(`http://127.0.0.1:${port}/generate`, r => {
+					r.resume();
+					r.on('end', () => resolve({status: r.statusCode, retryAfter: r.headers['retry-after']}));
+				}).on('error', reject);
+			});
+			for (let i = 0; i < 40; i++) {
+				try { await hit(); break; } catch (err) { await new Promise(r => setTimeout(r, 100)); }
+			}
+			const results = [];
+			for (let i = 0; i < 5; i++) results.push(await hit());
+			const limited = results.filter(r => r.status === 429);
+			assert.ok(limited.length > 0, `no request was limited: ${results.map(r => r.status).join(',')}`);
+			assert.ok(limited[0].retryAfter, 'a 429 must carry Retry-After');
+		} finally {
+			child.kill('SIGKILL');
+		}
 	}],
 	['starts without printing anything to stdout', '', () => {
 		// dotenv 17 prints a banner carrying a rotating third-party ad unless
@@ -99,7 +141,9 @@ const tests = [
 // starts silently. stderr stays inherited so real crashes remain visible.
 let serverStdout = '';
 const server = spawn(process.execPath, [path.join(__dirname, '..', 'passwordgenerator.js')], {
-	env: {...process.env, PORT},
+	// The suite fires well over the default 60 requests. The rate limiter has
+	// its own dedicated test below with a low ceiling.
+	env: {...process.env, PORT, RATE_LIMIT_MAX: '10000'},
 	stdio: ['ignore', 'pipe', 'inherit']
 });
 server.stdout.on('data', chunk => serverStdout += chunk);
