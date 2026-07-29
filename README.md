@@ -119,4 +119,7 @@ requires it, so the two can never drift apart.
 
 ## License
 
-MIT, as declared in `api/package.json`.
+MIT — see [LICENSE](LICENSE).
+
+The libraries under `js/vendor/` keep their own licences; see
+[js/vendor/README.md](js/vendor/README.md).
