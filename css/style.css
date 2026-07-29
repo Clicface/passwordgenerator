@@ -1,70 +1,402 @@
+/* Hand-written, no framework. Replaces Bootstrap 4 + bootstrap-toggle, which
+   between them accounted for four of the page's ten third-party requests. */
+
+:root {
+	--bg: #f4f5f7;
+	--surface: #ffffff;
+	--text: #1c2024;
+	--text-muted: #626b75;
+	--border: #dfe3e8;
+	--accent: #2f6fed;
+	--accent-hover: #2559c9;
+	--accent-contrast: #ffffff;
+	--track: #e4e7eb;
+	--shadow: 0 1px 2px rgba(16, 24, 40, .06), 0 8px 24px rgba(16, 24, 40, .07);
+	--radius: 14px;
+	--radius-sm: 9px;
+	--mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, "Liberation Mono", monospace;
+
+	--score-0: #d64545;
+	--score-1: #e2703a;
+	--score-2: #d9a441;
+	--score-3: #4f9d4f;
+	--score-4: #2f8f4e;
+}
+
+@media (prefers-color-scheme: dark) {
+	:root:not([data-theme="light"]) {
+		--bg: #14171a;
+		--surface: #1c2024;
+		--text: #e9edf1;
+		--text-muted: #9aa4af;
+		--border: #2c3238;
+		--accent: #3a6fd8;
+		--accent-hover: #2f6fed;
+		--track: #2c3238;
+		--shadow: 0 1px 2px rgba(0, 0, 0, .4), 0 8px 24px rgba(0, 0, 0, .35);
+	}
+}
+
+:root[data-theme="dark"] {
+	--bg: #14171a;
+	--surface: #1c2024;
+	--text: #e9edf1;
+	--text-muted: #9aa4af;
+	--border: #2c3238;
+	/* White-on-accent must clear WCAG AA (4.5:1) for the Generate button. A
+	   brighter blue reads better on dark but #5b8def only reaches 3.23:1. */
+	--accent: #3a6fd8;
+	--accent-hover: #2f6fed;
+	--track: #2c3238;
+	--shadow: 0 1px 2px rgba(0, 0, 0, .4), 0 8px 24px rgba(0, 0, 0, .35);
+}
+
+* { box-sizing: border-box; }
+
 body {
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+	margin: 0;
+	padding: 0 1rem 3rem;
+	background: var(--bg);
+	color: var(--text);
+	font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+	line-height: 1.55;
+	-webkit-font-smoothing: antialiased;
 }
 
-.bg-light {
-  background-color: #f8f9fa!important;
+.visually-hidden {
+	position: absolute;
+	width: 1px; height: 1px;
+	padding: 0; margin: -1px;
+	overflow: hidden;
+	clip: rect(0 0 0 0);
+	white-space: nowrap;
 }
-.box-shadow {
-  box-shadow: 0 0.25rem 0.75rem rgba(0, 0, 0, .05);
+
+/* ---------- top bar ---------- */
+
+.topbar {
+	max-width: 640px;
+	margin: 0 auto;
+	padding: 1.25rem 0;
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 1rem;
 }
-.mytable {
-  width: 100%;
+
+.brand {
+	font-size: 1.15rem;
+	font-weight: 650;
+	letter-spacing: -.01em;
+	color: var(--text);
+	text-decoration: none;
 }
-.myfirsttd {
-  width: 70px;
+
+.topbar-actions {
+	display: flex;
+	align-items: center;
+	gap: .5rem;
 }
-#option_choice {
-  max-width: 450px;
-  margin-left: auto;
-  margin-right: auto;
+
+.lang-switch {
+	display: flex;
+	gap: .15rem;
+	background: var(--surface);
+	border: 1px solid var(--border);
+	border-radius: 999px;
+	padding: .15rem;
 }
-#length_chars_select {
-  width: 60px;
+
+.lang-switch a {
+	padding: .2rem .6rem;
+	border-radius: 999px;
+	font-size: .78rem;
+	font-weight: 600;
+	letter-spacing: .03em;
+	color: var(--text-muted);
+	text-decoration: none;
 }
-.chars_example {
-  font-family: 'Courier New', Courier, 'Liberation Mono', 'DejaVu Sans Mono', Monaco, 'Lucida Console', monospace;
+
+.lang-switch a:hover {
+	color: var(--text);
+	background: var(--track);
 }
+
+.icon-button {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	width: 34px;
+	height: 34px;
+	padding: 0;
+	border: 1px solid var(--border);
+	border-radius: 50%;
+	background: var(--surface);
+	color: var(--text-muted);
+	cursor: pointer;
+	transition: color .15s, border-color .15s;
+}
+
+.icon-button:hover { color: var(--text); border-color: var(--text-muted); }
+
+.icon-button svg {
+	fill: none;
+	stroke: currentColor;
+	stroke-width: 1.8;
+	stroke-linecap: round;
+	stroke-linejoin: round;
+}
+
+/* ---------- intro ---------- */
+
+main {
+	max-width: 640px;
+	margin: 0 auto;
+}
+
+.intro {
+	margin: 0 0 .5rem;
+	color: var(--text-muted);
+	font-size: .93rem;
+}
+
+.intro-muted { font-size: .85rem; margin-bottom: 1.75rem; }
+
+/* ---------- result ---------- */
+
+.result {
+	background: var(--surface);
+	border: 1px solid var(--border);
+	border-radius: var(--radius);
+	box-shadow: var(--shadow);
+	overflow: hidden;
+	margin-bottom: 1.25rem;
+}
+
+.result[hidden] { display: none; }
+
+.result-row {
+	display: flex;
+	align-items: center;
+	gap: .75rem;
+	padding: 1rem 1.1rem;
+}
+
 .password-string {
-  font-weight: bold;
-  height: 45px;
-  background-color: #fff;
-  border-top: 1px solid #96a0ad;
-  border-left: 1px solid #96a0ad;
-  border-right: 1px solid #96a0ad;
-  vertical-align: middle;
-  font-size: 26px;
-  max-width: 820px;
-  text-align: center;
-  margin: 10px auto 0px;
-}
-.password-meter {
-  text-align: center;
-  height: 6px;
-  max-width: 820px;
-  border-left: 1px solid #96a0ad;
-  border-right: 1px solid #96a0ad;
-  margin: 0px auto;
-}
-.password-copy-to-clipboard {
-  text-align: center;
-  max-width: 820px;
-  margin: 0px auto;
-  padding: 5px 0px;
-  background-color: #dee2e6;
-  border-left: 1px solid #96a0ad;
-  border-right: 1px solid #96a0ad;
-  border-bottom: 1px solid #96a0ad;
+	flex: 1;
+	min-width: 0;
+	font-family: var(--mono);
+	font-size: clamp(1rem, 3.4vw, 1.4rem);
+	font-weight: 600;
+	letter-spacing: .01em;
+	word-break: break-all;
+	user-select: all;
 }
 
-/* Bootstrap Toggle v2.2.2 corrections for Bootsrtap 4*/
-.toggle-off {
-  box-shadow: inset 0 3px 5px rgba(0, 0, 0, .125);
+.copy-button { flex: none; }
+.copy-button.copied { color: var(--score-4); border-color: var(--score-4); }
+
+.meter {
+	height: 4px;
+	background: var(--track);
 }
-.toggle.off {
-  border-color: rgba(0, 0, 0, .25);
+
+.meter-fill {
+	height: 100%;
+	width: 0;
+	transition: width .25s ease, background-color .25s ease;
 }
-.toggle-handle {
-  background-color: white;
-  border: thin rgba(0, 0, 0, .25) solid;
+
+.meter-fill[data-score="0"] { background: var(--score-0); }
+.meter-fill[data-score="1"] { background: var(--score-1); }
+.meter-fill[data-score="2"] { background: var(--score-2); }
+.meter-fill[data-score="3"] { background: var(--score-3); }
+.meter-fill[data-score="4"] { background: var(--score-4); }
+
+.strength-label {
+	padding: .45rem 1.1rem .6rem;
+	font-size: .8rem;
+	font-weight: 600;
+	color: var(--text-muted);
+	min-height: 1.9rem;
+}
+
+/* ---------- options card ---------- */
+
+.card {
+	background: var(--surface);
+	border: 1px solid var(--border);
+	border-radius: var(--radius);
+	box-shadow: var(--shadow);
+	padding: 1.25rem;
+}
+
+.field-length {
+	padding-bottom: 1.1rem;
+	margin-bottom: 1.1rem;
+	border-bottom: 1px solid var(--border);
+}
+
+.field-length label {
+	display: block;
+	font-size: .85rem;
+	font-weight: 600;
+	color: var(--text-muted);
+	margin-bottom: .6rem;
+}
+
+.length-control {
+	display: flex;
+	align-items: center;
+	gap: 1rem;
+}
+
+.length-control output {
+	flex: none;
+	min-width: 3rem;
+	padding: .3rem 0;
+	text-align: center;
+	font-family: var(--mono);
+	font-size: 1rem;
+	font-weight: 650;
+	background: var(--track);
+	border-radius: var(--radius-sm);
+}
+
+input[type="range"] {
+	flex: 1;
+	-webkit-appearance: none;
+	appearance: none;
+	height: 4px;
+	border-radius: 2px;
+	background: var(--track);
+	outline: none;
+}
+
+input[type="range"]::-webkit-slider-thumb {
+	-webkit-appearance: none;
+	appearance: none;
+	width: 18px;
+	height: 18px;
+	border: none;
+	border-radius: 50%;
+	background: var(--accent);
+	cursor: pointer;
+	box-shadow: 0 1px 3px rgba(0, 0, 0, .3);
+}
+
+input[type="range"]::-moz-range-thumb {
+	width: 18px;
+	height: 18px;
+	border: none;
+	border-radius: 50%;
+	background: var(--accent);
+	cursor: pointer;
+}
+
+.options {
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+	gap: .3rem 1.25rem;
+}
+
+.option {
+	display: flex;
+	align-items: center;
+	gap: .7rem;
+	padding: .5rem 0;
+	cursor: pointer;
+}
+
+.option input[type="checkbox"] {
+	position: absolute;
+	opacity: 0;
+	width: 0;
+	height: 0;
+}
+
+/* Replaces bootstrap-toggle: a CSS-only switch, no plugin. */
+.switch {
+	flex: none;
+	position: relative;
+	width: 36px;
+	height: 20px;
+	border-radius: 999px;
+	background: var(--track);
+	transition: background-color .18s;
+}
+
+.switch::after {
+	content: "";
+	position: absolute;
+	top: 2px;
+	left: 2px;
+	width: 16px;
+	height: 16px;
+	border-radius: 50%;
+	background: var(--surface);
+	box-shadow: 0 1px 2px rgba(0, 0, 0, .3);
+	transition: transform .18s;
+}
+
+.option input:checked + .switch { background: var(--accent); }
+.option input:checked + .switch::after { transform: translateX(16px); }
+.option input:focus-visible + .switch { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+.option-text {
+	display: flex;
+	flex-direction: column;
+	gap: .1rem;
+	font-size: .9rem;
+	min-width: 0;
+}
+
+.chars_example {
+	font-family: var(--mono);
+	font-size: .72rem;
+	color: var(--text-muted);
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+}
+
+/* ---------- generate ---------- */
+
+.generate {
+	display: block;
+	width: 100%;
+	margin-top: 1.25rem;
+	padding: .85rem 1rem;
+	border: none;
+	border-radius: var(--radius-sm);
+	background: var(--accent);
+	color: var(--accent-contrast);
+	font-size: 1rem;
+	font-weight: 600;
+	font-family: inherit;
+	cursor: pointer;
+	transition: background-color .15s;
+}
+
+.generate:hover { background: var(--accent-hover); }
+.generate:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+.generate:active { transform: translateY(1px); }
+
+/* ---------- footer ---------- */
+
+footer {
+	max-width: 640px;
+	margin: 2.5rem auto 0;
+	text-align: center;
+	font-size: .82rem;
+	color: var(--text-muted);
+}
+
+footer a {
+	color: var(--text-muted);
+	margin-left: .4rem;
+}
+
+@media (prefers-reduced-motion: reduce) {
+	* { transition: none !important; }
 }

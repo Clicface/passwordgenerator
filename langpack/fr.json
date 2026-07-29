@@ -12,6 +12,11 @@
 		"ambiguous characters":"caractères ambigus",
 		"Generate Password":"Générer le mot de passe",
 		"Please make at least one selection":"veuillez effectuer au moins un choix",
-		"click here to copy to clipboard":"cliquer ici pour copier dans le presse-papier"
+		"click here to copy to clipboard":"cliquer ici pour copier dans le presse-papier",
+		"Very weak":"très faible",
+		"Weak":"faible",
+		"Fair":"moyen",
+		"Strong":"fort",
+		"Very strong":"très fort"
 	}
 }
