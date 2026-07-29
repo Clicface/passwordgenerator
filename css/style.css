@@ -403,10 +403,25 @@ footer {
 	color: var(--text-muted);
 }
 
+.footer-line {
+	margin: 0 0 .4rem;
+}
+
 footer a {
 	color: var(--text-muted);
 	margin-left: .4rem;
 }
+
+.source-link {
+	display: inline-flex;
+	align-items: center;
+	gap: .35rem;
+	margin-left: 0;
+	text-decoration: none;
+}
+
+.source-link:hover { color: var(--text); text-decoration: underline; }
+.source-link svg { fill: currentColor; }
 
 @media (prefers-reduced-motion: reduce) {
 	* { transition: none !important; }
