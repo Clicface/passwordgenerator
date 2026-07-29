@@ -6,7 +6,11 @@
 		<meta name="viewport" content="width=device-width, initial-scale=1">
 		<meta name="description" content="Generate strong random passwords in your browser. Nothing is sent over the network.">
 		<link rel="stylesheet" href="css/style.css">
-		<link rel="icon" type="image/png" href="favicon.png">
+		<!-- SVG first for crisp scaling; the PNG is the fallback for browsers
+	     that ignore SVG icons. favicon.png was referenced here for years
+	     without ever existing, so every visitor got a 404. -->
+		<link rel="icon" type="image/svg+xml" href="favicon.svg">
+		<link rel="icon" type="image/png" sizes="32x32" href="favicon.png">
 	</head>
 	<body>
 		<header class="topbar">
