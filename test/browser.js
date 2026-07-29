@@ -150,9 +150,12 @@ const generateWithNoCharset = `(function(){
 		//
 		// Driving the slider and watching the number box follow proves the
 		// handlers are actually attached, which is the thing the tests need.
+		// zxcvbn is deliberately absent from this check: it is fetched on first
+		// Generate, not at startup, so requiring it here would wait forever.
+		// That is the point of the change -- the page is usable without it.
 		const libsReady = async () => evaluate(`(function(){
 			${HELPERS}
-			if (typeof window.zxcvbn !== 'function' || typeof window.lang !== 'object') return false;
+			if (typeof window.lang !== 'object') return false;
 			setVal('length_chars_select', 77, 'input');
 			return $id('length_value').value === '77';
 		})()`).catch(() => false);
@@ -220,6 +223,59 @@ const generateWithNoCharset = `(function(){
 			assert.deepStrictEqual(JSON.parse(await evaluate(snapshot)), english, 'English was not restored exactly');
 		});
 
+		await run('the password appears without waiting for the scorer', async () => {
+			// The point of loading zxcvbn on demand: generating never needed it,
+			// so the password must not wait on a 400 KB download.
+			const out = JSON.parse(await evaluate(`(function(){
+				${HELPERS}
+				setChecked('alphalower_chars_checkbox', true);
+				setVal('length_chars_select', 18, 'input');
+				var before = typeof window.zxcvbn;
+				$id('generate').click();
+				return JSON.stringify({
+					zxcvbnBefore: before,
+					shown: $id('password-container-top').textContent
+				});
+			})()`));
+			assert.strictEqual(out.shown.length, 18, `got "${out.shown}" synchronously`);
+			assert.ok(
+				out.zxcvbnBefore === 'undefined' || out.zxcvbnBefore === 'function',
+				`unexpected zxcvbn state: ${out.zxcvbnBefore}`
+			);
+		});
+
+		await run('a second password is not scored by the first click', async () => {
+			// The score arrives late, so a stale result must not overwrite the
+			// meter for a password the visitor has already replaced.
+			const out = JSON.parse(await evaluate(`(function(){
+				${HELPERS}
+				setChecked('alphalower_chars_checkbox', true);
+				setChecked('num_chars_checkbox', true);
+				setVal('length_chars_select', 4, 'input');
+				$id('generate').click();
+				var first = $id('password-container-top').textContent;
+				setVal('length_chars_select', 40, 'input');
+				$id('generate').click();
+				var second = $id('password-container-top').textContent;
+				// Put the digits back as they were: leaving them on made a later
+				// test, which expects lowercase only, fail depending on order.
+				setChecked('num_chars_checkbox', false);
+				return JSON.stringify({first: first, second: second});
+			})()`));
+			assert.strictEqual(out.first.length, 4);
+			assert.strictEqual(out.second.length, 40);
+
+			// Let both scores land, then check the meter matches the password on
+			// screen rather than the one it replaced.
+			await sleep(2500);
+			const final = JSON.parse(await evaluate(`JSON.stringify({
+				shown: document.getElementById('password-container-top').textContent,
+				score: document.getElementById('password-container-bottom').getAttribute('data-score')
+			})`));
+			assert.strictEqual(final.shown.length, 40, 'the displayed password changed unexpectedly');
+			assert.ok(Number(final.score) >= 3, `a 40 char password scored ${final.score} — looks like the 4 char result won`);
+		});
+
 		await run('the strength label follows a language change after generating', async () => {
 			// Text written at runtime used to be translated once and then left
 			// behind, so switching language gave a French page with one English
@@ -232,8 +288,15 @@ const generateWithNoCharset = `(function(){
 				setVal('length_chars_select', 24, 'input');
 				$id('generate').click();
 			})()`);
-			const english = await evaluate(`document.getElementById('strength-label').textContent`);
-			assert.ok(english.length > 0, 'no strength label was shown');
+			// Scoring waits on zxcvbn, which is fetched on first use, so the
+			// label appears a moment after the password rather than with it.
+			let english = '';
+			for (let i = 0; i < 60; i++) {
+				english = await evaluate(`document.getElementById('strength-label').textContent`);
+				if (english.length > 0) break;
+				await sleep(250);
+			}
+			assert.ok(english.length > 0, 'no strength label was shown, even after waiting for zxcvbn');
 
 			await evaluate('window.lang.change("fr")');
 			await sleep(500);
@@ -243,9 +306,14 @@ const generateWithNoCharset = `(function(){
 		});
 
 		await run('generating with a character class still returns a password', async () => {
+			// Sets every class explicitly rather than inheriting whatever the
+			// previous test left behind, so this cannot break on ordering.
 			const field = await evaluate(`(function(){
 				${HELPERS}
 				setChecked('alphalower_chars_checkbox', true);
+				['alphaupper_chars_checkbox','num_chars_checkbox','hyphen_dash_underscore',
+				 'special_chars_checkbox','ambiguous_chars_checkbox']
+					.forEach(function(id){ setChecked(id, false); });
 				setVal('length_chars_select', 20, 'input');
 				$id('generate').click();
 				return $id('password-container-top').textContent;
