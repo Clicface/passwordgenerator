@@ -33,7 +33,7 @@ over HTTP.
 - **Configurable** — pick length and which character classes to draw from
 - **Ambiguity-aware** — excludes `i l I O 0 1` by default, opt back in if you want them
 - **Strength estimation** — scored live with [zxcvbn](https://github.com/dropbox/zxcvbn)
-- **Multi-language** — English and French, via [jquery-lang-js](https://github.com/Irrelon/jquery-lang-js)
+- **Multi-language** — English and French, in about sixty lines of `js/i18n.js`
 - **No build step** — open `index.html` and it works
 
 ## Running it
@@ -59,7 +59,7 @@ any `npm audit` advisory.
 ```
 index.html              the app
 css/  js/  langpack/    styles, generator, translations
-js/vendor/              third-party libraries, copied in rather than fetched
+js/vendor/              zxcvbn, the only third-party code left
 test/                   generator and front-end tests
 api/                    optional, not deployed — see below
 ```
@@ -80,7 +80,6 @@ sit in between. Generating in the browser avoids all of that.
 ## Credits
 
 - [zxcvbn](https://github.com/dropbox/zxcvbn) — strength estimation
-- [jquery-lang-js](https://github.com/Irrelon/jquery-lang-js) — translations
 - [Original jQuery snippet](http://onwebdev.blogspot.com/2011/08/jquery-generate-random-password.html) this grew from
 
 ## License

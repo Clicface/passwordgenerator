@@ -64,20 +64,37 @@ async function waitForTarget() {
 	throw new Error('no debuggable page target appeared');
 }
 
+// Vanilla helpers for the evaluated snippets, replacing the jQuery the page
+// no longer loads. Kept as source strings because they run inside the browser.
+const HELPERS = `
+	var $id = function (id) { return document.getElementById(id); };
+	var setVal = function (id, value, eventName) {
+		var el = $id(id);
+		el.value = value;
+		el.dispatchEvent(new Event(eventName, {bubbles: true}));
+	};
+	var setChecked = function (id, on) {
+		var el = $id(id);
+		el.checked = on;
+		el.dispatchEvent(new Event('change', {bubbles: true}));
+	};
+`;
+
 // Unchecking every character class is what makes the generator refuse to run.
-const UNCHECK_ALL = `['#alphalower_chars_checkbox','#alphaupper_chars_checkbox','#num_chars_checkbox',
-	'#hyphen_dash_underscore','#special_chars_checkbox','#ambiguous_chars_checkbox']
-	.forEach(function(s){ jQuery(s).prop('checked', false); });`;
+const UNCHECK_ALL = `['alphalower_chars_checkbox','alphaupper_chars_checkbox','num_chars_checkbox',
+	'hyphen_dash_underscore','special_chars_checkbox','ambiguous_chars_checkbox']
+	.forEach(function(s){ setChecked(s, false); });`;
 
 const generateWithNoCharset = `(function(){
+	${HELPERS}
 	window.__err = [];
 	window.addEventListener('error', function(e){ window.__err.push(String(e.message)); });
 	${UNCHECK_ALL}
 	var thrown = null;
-	try { jQuery('#generate').click(); } catch (e) { thrown = String(e); }
+	try { $id('generate').click(); } catch (e) { thrown = String(e); }
 	return JSON.stringify({
-		field: jQuery('#password-container-top').text(),
-		visible: jQuery('#password-container').is(':visible'),
+		field: $id('password-container-top').textContent,
+		visible: $id('password-container').offsetParent !== null,
 		thrown: thrown,
 		errors: window.__err
 	});
@@ -126,7 +143,7 @@ const generateWithNoCharset = `(function(){
 
 		// Readiness is probed functionally, not by timing or by the presence of
 		// globals. Checking only that the libraries loaded was not enough: the
-		// page binds its handlers inside jQuery's ready callback, so a click
+		// page wires its handlers in a script at the end of body, so a click
 		// landing before that does nothing at all -- no handler, no error, an
 		// empty result field. That produced a green run locally and a failure
 		// in CI, where the ordering differs.
@@ -134,10 +151,10 @@ const generateWithNoCharset = `(function(){
 		// Driving the slider and watching the number box follow proves the
 		// handlers are actually attached, which is the thing the tests need.
 		const libsReady = async () => evaluate(`(function(){
-			if (typeof window.jQuery !== 'function') return false;
+			${HELPERS}
 			if (typeof window.zxcvbn !== 'function' || typeof window.lang !== 'object') return false;
-			jQuery('#length_chars_select').val(77).trigger('input');
-			return jQuery('#length_value').val() === '77';
+			setVal('length_chars_select', 77, 'input');
+			return $id('length_value').value === '77';
 		})()`).catch(() => false);
 
 		let ready = false;
@@ -176,12 +193,62 @@ const generateWithNoCharset = `(function(){
 			assert.strictEqual(r.field, 'veuillez effectuer au moins un choix');
 		});
 
+		await run('switching language translates every marked element, and back', async () => {
+			// The whole point of replacing jquery-lang-js: one translated string
+			// proves the lookup works, not that the page swaps.
+			const snapshot = `JSON.stringify(Array.from(document.body.querySelectorAll('[lang]')).map(e => e.textContent.trim()))`;
+			await evaluate('window.lang.change("en")');
+			await sleep(300);
+			const english = JSON.parse(await evaluate(snapshot));
+			assert.ok(english.length >= 10, `only ${english.length} translatable elements found`);
+
+			await evaluate('window.lang.change("fr")');
+			for (let i = 0; i < 40; i++) {
+				if (await evaluate('window.lang.currentLang === "fr"')) break;
+				await sleep(250);
+			}
+			await sleep(300);
+			const french = JSON.parse(await evaluate(snapshot));
+			const untranslated = english.filter((text, i) => text === french[i]);
+			assert.deepStrictEqual(untranslated, [], `left in English: ${untranslated.join(' | ')}`);
+			assert.strictEqual(await evaluate('document.documentElement.getAttribute("lang")'), 'fr');
+
+			// Going back must restore the source text, not a translation of a
+			// translation -- the failure mode if the originals are not captured.
+			await evaluate('window.lang.change("en")');
+			await sleep(400);
+			assert.deepStrictEqual(JSON.parse(await evaluate(snapshot)), english, 'English was not restored exactly');
+		});
+
+		await run('the strength label follows a language change after generating', async () => {
+			// Text written at runtime used to be translated once and then left
+			// behind, so switching language gave a French page with one English
+			// phrase sitting in the middle of it.
+			await evaluate('window.lang.change("en")');
+			await sleep(300);
+			await evaluate(`(function(){
+				${HELPERS}
+				setChecked('alphalower_chars_checkbox', true);
+				setVal('length_chars_select', 24, 'input');
+				$id('generate').click();
+			})()`);
+			const english = await evaluate(`document.getElementById('strength-label').textContent`);
+			assert.ok(english.length > 0, 'no strength label was shown');
+
+			await evaluate('window.lang.change("fr")');
+			await sleep(500);
+			const french = await evaluate(`document.getElementById('strength-label').textContent`);
+			assert.notStrictEqual(french, english, `strength label stayed "${english}" after switching to French`);
+			assert.ok(french.length > 0, 'strength label was emptied by the language change');
+		});
+
 		await run('generating with a character class still returns a password', async () => {
 			const field = await evaluate(`(function(){
-				jQuery('#alphalower_chars_checkbox').prop('checked', true);
-				jQuery('#length_chars_select').val(20);
-				jQuery('#generate').click();
-				return jQuery('#password-container-top').text();
+				${HELPERS}
+				setChecked('alphalower_chars_checkbox', true);
+				setVal('length_chars_select', 20, 'input');
+				$id('generate').click();
+				return $id('password-container-top').textContent;
 			})()`);
 			assert.strictEqual(field.length, 20, `got "${field}"`);
 			assert.match(field, /^[a-z]+$/);
@@ -189,11 +256,12 @@ const generateWithNoCharset = `(function(){
 
 		await run('typing a length drives the slider and the generated password', async () => {
 			const out = JSON.parse(await evaluate(`(function(){
-				jQuery('#length_value').val(37).trigger('change');
-				jQuery('#generate').click();
+				${HELPERS}
+				setVal('length_value', 37, 'change');
+				$id('generate').click();
 				return JSON.stringify({
-					slider: jQuery('#length_chars_select').val(),
-					produced: jQuery('#password-container-top').text().length
+					slider: $id('length_chars_select').value,
+					produced: $id('password-container-top').textContent.length
 				});
 			})()`));
 			assert.strictEqual(out.slider, '37', 'the slider did not follow the typed value');
@@ -202,18 +270,20 @@ const generateWithNoCharset = `(function(){
 
 		await run('the slider drives the number box back', async () => {
 			const shown = await evaluate(`(function(){
-				jQuery('#length_chars_select').val(64).trigger('input');
-				return jQuery('#length_value').val();
+				${HELPERS}
+				setVal('length_chars_select', 64, 'input');
+				return $id('length_value').value;
 			})()`);
 			assert.strictEqual(shown, '64');
 		});
 
 		await run('a typed length outside the bounds is pulled back in', async () => {
 			const out = JSON.parse(await evaluate(`(function(){
-				jQuery('#length_value').val(9999).trigger('change');
-				var high = {box: jQuery('#length_value').val(), slider: jQuery('#length_chars_select').val()};
-				jQuery('#length_value').val(1).trigger('change');
-				return JSON.stringify({high: high, low: {box: jQuery('#length_value').val(), slider: jQuery('#length_chars_select').val()}});
+				${HELPERS}
+				setVal('length_value', 9999, 'change');
+				var high = {box: $id('length_value').value, slider: $id('length_chars_select').value};
+				setVal('length_value', 1, 'change');
+				return JSON.stringify({high: high, low: {box: $id('length_value').value, slider: $id('length_chars_select').value}});
 			})()`));
 			assert.strictEqual(out.high.box, '120', `9999 became ${out.high.box}`);
 			assert.strictEqual(out.high.slider, '120');

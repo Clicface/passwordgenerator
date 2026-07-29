@@ -16,8 +16,8 @@
 					<svg viewBox="0 0 24 24" aria-hidden="true" width="18" height="18"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8Z"/></svg>
 				</button>
 				<div class="lang-switch">
-					<a href="#lang-en" onclick="window.lang.change('en'); return false;">EN</a>
-					<a href="#lang-fr" onclick="window.lang.change('fr'); return false;">FR</a>
+					<a href="#lang-en" data-lang="en">EN</a>
+					<a href="#lang-fr" data-lang="fr">FR</a>
 				</div>
 			</div>
 		</header>
@@ -120,96 +120,114 @@
 			<a href="https://www.clicface.com" target="_blank" rel="noopener">www.clicface.com</a>
 		</footer>
 
-		<script src="js/vendor/jquery.min.js"></script>
-		<script src="js/vendor/js.cookie.js"></script>
-		<script src="js/vendor/jquery-lang.js"></script>
 		<script src="js/vendor/zxcvbn.js"></script>
+		<script src="js/i18n.js"></script>
 		<script src="js/passwordgenerator.js"></script>
 		<script type="text/javascript">
 			//<![CDATA[
-			$('form').bind('submit', function(e) {
-				e.preventDefault();
-			});
+			(function () {
+				'use strict';
 
-			var lang = new Lang();
-			lang.dynamic('fr', 'langpack/fr.json');
-			lang.init({
-				defaultLang: 'en'
-			});
+				var $ = function (id) { return document.getElementById(id); };
+				var STRENGTH = ['Very weak', 'Weak', 'Fair', 'Strong', 'Very strong'];
+				var MIN_LENGTH = 3, MAX_LENGTH = 120;
 
-			$(function() {
+				document.querySelector('form').addEventListener('submit', function (e) {
+					e.preventDefault();
+				});
+
+				window.lang.init();
+
 				// Theme: follow the system unless the visitor has chosen otherwise.
-				var stored = null;
-				try { stored = window.localStorage.getItem('theme'); } catch (err) { /* private mode */ }
-				if (stored) document.documentElement.setAttribute('data-theme', stored);
-				$('#theme-toggle').click(function() {
-					var dark = document.documentElement.getAttribute('data-theme') === 'dark'
-						|| (!document.documentElement.getAttribute('data-theme')
-							&& window.matchMedia('(prefers-color-scheme: dark)').matches);
+				var storedTheme = null;
+				try { storedTheme = window.localStorage.getItem('theme'); } catch (err) { /* private mode */ }
+				if (storedTheme) document.documentElement.setAttribute('data-theme', storedTheme);
+
+				$('theme-toggle').addEventListener('click', function () {
+					var set = document.documentElement.getAttribute('data-theme');
+					var dark = set === 'dark'
+						|| (!set && window.matchMedia('(prefers-color-scheme: dark)').matches);
 					var next = dark ? 'light' : 'dark';
 					document.documentElement.setAttribute('data-theme', next);
 					try { window.localStorage.setItem('theme', next); } catch (err) { /* private mode */ }
 				});
 
-				// The slider stays the source of truth -- the generator reads it --
-				// and the number box mirrors it, so either control can drive.
-				var MIN_LENGTH = 3, MAX_LENGTH = 120;
-				$('#length_chars_select').on('input change', function() {
-					$('#length_value').val($(this).val());
-				});
-				$('#length_value').on('input change', function() {
-					var typed = parseInt($(this).val(), 10);
-					if (isNaN(typed)) return;   // mid-typing or empty: wait for a real value
-					var clamped = Math.min(Math.max(typed, MIN_LENGTH), MAX_LENGTH);
-					$('#length_chars_select').val(clamped);
-					// Only rewrite what the visitor typed once they leave the field,
-					// otherwise typing "1" on the way to "12" snaps it to 3.
-					if (arguments[0].type === 'change') $(this).val(clamped);
+				Array.prototype.forEach.call(document.querySelectorAll('.lang-switch a'), function (link) {
+					link.addEventListener('click', function (e) {
+						e.preventDefault();
+						window.lang.change(link.getAttribute('data-lang'));
+					});
 				});
 
-				$('#generate').click(function(event) {
+				// The slider stays the source of truth -- the generator reads it --
+				// and the number box mirrors it, so either control can drive.
+				var slider = $('length_chars_select');
+				var box = $('length_value');
+
+				slider.addEventListener('input', function () { box.value = slider.value; });
+				slider.addEventListener('change', function () { box.value = slider.value; });
+
+				function syncFromBox(event) {
+					var typed = parseInt(box.value, 10);
+					if (isNaN(typed)) return;   // mid-typing or empty: wait for a real value
+					var clamped = Math.min(Math.max(typed, MIN_LENGTH), MAX_LENGTH);
+					slider.value = clamped;
+					// Only rewrite what the visitor typed once they leave the field,
+					// otherwise typing "1" on the way to "12" snaps it to 3.
+					if (event.type === 'change') box.value = clamped;
+				}
+				box.addEventListener('input', syncFromBox);
+				box.addEventListener('change', syncFromBox);
+
+				function meter(score) {
+					$('password-container').removeAttribute('hidden');
+					$('password-container-bottom').setAttribute('data-score', String(score));
+					$('password-container-bottom').style.width = ((score + 1) * 20) + '%';
+				}
+
+				$('generate').addEventListener('click', function (event) {
+					event.preventDefault();
 					var pwd;
 					try {
 						pwd = generateRandomPassword(
-							$("#length_chars_select").val(),
-							$("#alphalower_chars_checkbox").is(":checked"),
-							$("#alphaupper_chars_checkbox").is(":checked"),
-							$("#num_chars_checkbox").is(":checked"),
-							$("#hyphen_dash_underscore").is(":checked"),
-							$("#special_chars_checkbox").is(":checked"),
-							$("#ambiguous_chars_checkbox").is(":checked")
+							slider.value,
+							$('alphalower_chars_checkbox').checked,
+							$('alphaupper_chars_checkbox').checked,
+							$('num_chars_checkbox').checked,
+							$('hyphen_dash_underscore').checked,
+							$('special_chars_checkbox').checked,
+							$('ambiguous_chars_checkbox').checked
 						);
 					} catch (err) {
-						$('#password-container').removeAttr('hidden');
-						$('#password-container-top').text(lang.translate(err.message));
-						$('#password-container-bottom').attr('data-score', '0').css('width', '100%');
-						$('#strength-label').text('');
-						event.preventDefault();
+						// setText, not textContent: the message has to follow a
+						// later language change like the rest of the page.
+						meter(0);
+						$('password-container-bottom').style.width = '100%';
+						window.lang.setText($('password-container-top'), err.message);
+						window.lang.setText($('strength-label'), '');
 						return;
 					}
 					var score = zxcvbn(pwd).score;
-					$('#password-container').removeAttr('hidden');
-					$('#password-container-top').text(pwd);
-					$('#password-container-bottom').attr('data-score', score).css('width', ((score + 1) * 20) + '%');
-					$('#strength-label').text(lang.translate(['Very weak', 'Weak', 'Fair', 'Strong', 'Very strong'][score]));
-					event.preventDefault();
+					meter(score);
+					// The password itself is not translatable text.
+					$('password-container-top').removeAttribute('data-i18n');
+					$('password-container-top').textContent = pwd;
+					window.lang.setText($('strength-label'), STRENGTH[score]);
 				});
 
 				// Replaces clipboard.js: navigator.clipboard is available in every
 				// browser this targets, on any HTTPS origin.
-				$('#click-to-copy').click(function() {
-					var text = $('#password-container-top').text();
+				$('click-to-copy').addEventListener('click', function () {
+					var text = $('password-container-top').textContent;
 					if (!text) return;
 					var button = this;
-					var done = function() {
-						$(button).addClass('copied');
-						setTimeout(function() { $(button).removeClass('copied'); }, 1200);
-					};
-					if (navigator.clipboard && navigator.clipboard.writeText) {
-						navigator.clipboard.writeText(text).then(done, function() { /* denied */ });
-					}
+					if (!navigator.clipboard || !navigator.clipboard.writeText) return;
+					navigator.clipboard.writeText(text).then(function () {
+						button.classList.add('copied');
+						setTimeout(function () { button.classList.remove('copied'); }, 1200);
+					}, function () { /* permission denied */ });
 				});
-			});
+			})();
 			//]]>
 		</script>
 	</body>
