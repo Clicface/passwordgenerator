@@ -132,7 +132,11 @@
 			</p>
 		</footer>
 
-		<script src="js/vendor/zxcvbn.js"></script>
+		<!-- zxcvbn is deliberately NOT loaded here. It is 400 KB, it is only
+		     needed after the first Generate, and classic scripts run in order:
+		     loading it up front meant nothing on this page worked until all of
+		     it had arrived. It is fetched on demand instead, in the script
+		     below. -->
 		<script src="js/i18n.js"></script>
 		<script src="js/passwordgenerator.js"></script>
 		<script type="text/javascript">
@@ -197,6 +201,28 @@
 					$('password-container-bottom').style.width = ((score + 1) * 20) + '%';
 				}
 
+				// Fetched on first use, then reused. The promise is cached rather
+				// than the script tag, so two rapid clicks share one download.
+				var zxcvbnLoad = null;
+				function loadZxcvbn() {
+					if (zxcvbnLoad) return zxcvbnLoad;
+					zxcvbnLoad = new Promise(function (resolve, reject) {
+						var s = document.createElement('script');
+						s.src = 'js/vendor/zxcvbn.js';
+						s.onload = function () { resolve(window.zxcvbn); };
+						s.onerror = function () {
+							zxcvbnLoad = null;   // let a later click retry
+							reject(new Error('zxcvbn failed to load'));
+						};
+						document.head.appendChild(s);
+					});
+					return zxcvbnLoad;
+				}
+
+				// Scoring arrives after the password, so a second click must not
+				// have its meter overwritten by the first click's late result.
+				var shownPassword = null;
+
 				$('generate').addEventListener('click', function (event) {
 					event.preventDefault();
 					var pwd;
@@ -213,18 +239,32 @@
 					} catch (err) {
 						// setText, not textContent: the message has to follow a
 						// later language change like the rest of the page.
+						shownPassword = null;
 						meter(0);
 						$('password-container-bottom').style.width = '100%';
 						window.lang.setText($('password-container-top'), err.message);
 						window.lang.setText($('strength-label'), '');
 						return;
 					}
-					var score = zxcvbn(pwd).score;
-					meter(score);
-					// The password itself is not translatable text.
+
+					// The password is shown straight away; only the score waits on
+					// zxcvbn. Generating never needed it.
+					shownPassword = pwd;
 					$('password-container-top').removeAttribute('data-i18n');
 					$('password-container-top').textContent = pwd;
-					window.lang.setText($('strength-label'), STRENGTH[score]);
+					meter(0);
+					$('password-container-bottom').style.width = '0%';
+					window.lang.setText($('strength-label'), '');
+
+					loadZxcvbn().then(function (zxcvbn) {
+						if (shownPassword !== pwd) return;   // a newer password won
+						var score = zxcvbn(pwd).score;
+						meter(score);
+						window.lang.setText($('strength-label'), STRENGTH[score]);
+					}, function () {
+						// No scoring available. The password is still valid and
+						// still displayed -- the meter simply stays empty.
+					});
 				});
 
 				// Replaces clipboard.js: navigator.clipboard is available in every
