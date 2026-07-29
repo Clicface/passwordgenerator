@@ -32,6 +32,7 @@ over HTTP.
 
 ## Features
 
+- **Cryptographically secure** — draws from `crypto.getRandomValues`, with rejection sampling so no character is favoured
 - **Configurable** — pick length and which character classes to draw from
 - **Ambiguity-aware** — excludes `i l I O 0 1` by default, opt back in if you want them
 - **Strength estimation** — scored live with [zxcvbn](https://github.com/dropbox/zxcvbn)
