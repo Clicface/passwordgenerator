@@ -121,13 +121,30 @@ const generateWithNoCharset = `(function(){
 		};
 
 		await send('Runtime.enable');
-		// jQuery, zxcvbn and jquery-lang all come from CDNs.
+		await send('Page.enable');
+
+		// jQuery, zxcvbn and jquery-lang all come from CDNs, so a slow or
+		// flaky network makes the page never finish loading through no fault
+		// of the code. Reload and wait again rather than failing on the first
+		// blip -- but still fail eventually, since a genuinely broken script
+		// URL or SRI hash in index.html looks exactly the same from here.
+		const libsReady = async () => evaluate(
+			'typeof window.jQuery === "function" && typeof window.zxcvbn === "function" && typeof window.lang === "object"'
+		).catch(() => false);
+
 		let ready = false;
-		for (let i = 0; i < 80 && !ready; i++) {
-			ready = await evaluate('typeof window.jQuery === "function" && typeof window.zxcvbn === "function" && typeof window.lang === "object"');
-			if (!ready) await sleep(250);
+		for (let attempt = 1; attempt <= 3 && !ready; attempt++) {
+			for (let i = 0; i < 120 && !ready; i++) {
+				ready = await libsReady();
+				if (!ready) await sleep(250);
+			}
+			if (!ready && attempt < 3) {
+				console.error(`  CDN scripts not up after 30s, reloading (attempt ${attempt + 1}/3)`);
+				await send('Page.navigate', {url});
+				await sleep(1000);
+			}
 		}
-		assert.ok(ready, 'jQuery, zxcvbn and jquery-lang never finished loading (CDN unreachable?)');
+		assert.ok(ready, 'jQuery, zxcvbn and jquery-lang never loaded after 3 attempts — CDN unreachable, or a script URL/SRI hash in index.html is wrong');
 
 		await run('generating with no character class shows the message instead of throwing', async () => {
 			const r = JSON.parse(await evaluate(generateWithNoCharset));
@@ -165,10 +182,23 @@ const generateWithNoCharset = `(function(){
 		failures++;
 		console.error(err.message);
 	} finally {
-		if (ws) ws.close();
+		// Nothing in here may throw: an exception in a finally block replaces
+		// whatever the tests actually reported with a cleanup error, which is
+		// how a plain "CDN unreachable" once surfaced as an ENOTEMPTY stack.
+		try { if (ws) ws.close(); } catch (err) { /* already gone */ }
 		chrome.kill('SIGKILL');
+		// Chrome is still flushing the profile directory when kill returns, so
+		// removing it immediately races and fails with ENOTEMPTY.
+		await Promise.race([
+			new Promise(r => chrome.once('exit', r)),
+			sleep(5000)
+		]);
 		server.close();
-		fs.rmSync(profile, {recursive: true, force: true});
+		try {
+			fs.rmSync(profile, {recursive: true, force: true, maxRetries: 5, retryDelay: 200});
+		} catch (err) {
+			console.error(`  (could not remove ${profile}: ${err.code})`);
+		}
 	}
 
 	console.log(failures ? `\n${failures} browser test(s) failed` : '\n3 browser test(s) passed');
