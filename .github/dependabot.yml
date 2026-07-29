@@ -4,13 +4,8 @@ version: 2
 # updates means routine bumps get proposed too, and the auto-merge workflow
 # lands the non-major ones on its own once CI passes.
 updates:
-  - package-ecosystem: npm
-    directory: /api
-    schedule:
-      interval: weekly
-    open-pull-requests-limit: 5
-
-  # Root package.json: dev tooling only (ESLint).
+  # Root package.json: dev tooling only (ESLint). The site itself ships no npm
+  # dependencies -- zxcvbn is vendored and tracked in js/vendor/README.md.
   - package-ecosystem: npm
     directory: /
     schedule:

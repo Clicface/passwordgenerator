@@ -51,8 +51,8 @@ Neither pulls in a test framework. The browser test speaks the DevTools
 protocol over Node's built-in WebSocket, so it needs **Node 22+** and any
 Chromium or Chrome on `PATH` (or `CHROME_BIN`).
 
-CI runs both on Node 24, lints with ESLint, scans with CodeQL, and fails on
-any `npm audit` advisory.
+CI runs both on Node 24, lints with ESLint and scans with CodeQL. `npm audit`
+covers the dev tooling, which is all that is left in `package.json`.
 
 ## Layout
 
@@ -61,21 +61,11 @@ index.html              the app
 css/  js/  langpack/    styles, generator, translations
 js/vendor/              zxcvbn, the only third-party code left
 test/                   generator and front-end tests
-api/                    optional, not deployed — see below
 ```
 
-## The `api/` directory
-
-An Express wrapper around the same generator. **It is not deployed and the
-page does not use it** — generation happens entirely in the browser, which is
-why the page can promise that no password crosses the network.
-
-It is kept because it still runs and is still tested, but be clear about the
-trade-off before hosting it: an HTTP password generator means the password is
-produced on a server, travels over the wire, and passes through whatever logs
-sit in between. Generating in the browser avoids all of that.
-
-`npm --prefix api test` still exercises it, and CI still runs those tests.
+The page ships **no npm dependencies**. zxcvbn is vendored under `js/vendor/`
+and loaded on demand, on the first Generate — it is 400 KB and only scoring
+needs it, so the page does not wait on it.
 
 ## Credits
 

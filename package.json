@@ -1,7 +1,7 @@
 {
   "name": "passwordgenerator-tooling",
   "private": true,
-  "description": "Repo-level dev tooling. Kept separate from api/package.json so a lint dependency never lands in the API's audited runtime tree.",
+  "description": "Repo-level dev tooling. The site itself ships no npm dependencies.",
   "scripts": {
     "lint": "eslint .",
     "test": "node test/generator.js && node test/browser.js"

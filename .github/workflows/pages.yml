@@ -7,7 +7,8 @@ on:
 
 # Pages currently publishes the gh-pages branch, whose last commit is from
 # 2013. This replaces that with master, and uploads only what the site needs:
-# api/, test/ and the tooling files have no business being served.
+# test/ and the tooling files have no business being served. api/ is listed
+# too: it is gone, and the guard is what keeps it from creeping back in.
 permissions:
   contents: read
   pages: write
