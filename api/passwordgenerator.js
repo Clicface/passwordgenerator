@@ -22,12 +22,12 @@ app.get('/generate', cors(), (req, res)=>{
 
 	length = parseInt(length, 10);
 	length = isNaN(length) ? DEFAULT_LENGTH : Math.min(Math.max(length, MIN_LENGTH), MAX_LENGTH);
-	AlphaLower = AlphaLower.toString().toLowerCase() == 'false' ? false : true;
-	AlphaUpper = AlphaUpper.toString().toLowerCase() == 'false' ? false : true;
-	Num = Num.toString().toLowerCase() == 'false' ? false : true;
-	HypenDashUnderscore = HypenDashUnderscore.toString().toLowerCase() == 'true' ? true : false;
-	Special = Special.toString().toLowerCase() == 'true' ? true : false;
-	Ambiguous = Ambiguous.toString().toLowerCase() == 'true' ? true : false;
+	AlphaLower = AlphaLower.toString().toLowerCase() === 'false' ? false : true;
+	AlphaUpper = AlphaUpper.toString().toLowerCase() === 'false' ? false : true;
+	Num = Num.toString().toLowerCase() === 'false' ? false : true;
+	HypenDashUnderscore = HypenDashUnderscore.toString().toLowerCase() === 'true' ? true : false;
+	Special = Special.toString().toLowerCase() === 'true' ? true : false;
+	Ambiguous = Ambiguous.toString().toLowerCase() === 'true' ? true : false;
 	
 	let pwd;
 	try {

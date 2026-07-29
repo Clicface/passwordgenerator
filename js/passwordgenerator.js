@@ -52,7 +52,7 @@ function generateRandomPassword(length, AlphaLower, AlphaUpper, Num, HypenDashUn
 	// server-side, where `window` does not exist and where an error message
 	// returned as if it were a password would be served as one. The message
 	// doubles as the langpack key so callers can translate it.
-	if (chars == '') throw new Error('Please make at least one selection');
+	if (chars === '') throw new Error('Please make at least one selection');
 	var list = chars.split('');
 	var len = list.length, i = 0;
 	do {

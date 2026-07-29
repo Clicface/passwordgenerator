@@ -46,6 +46,27 @@ jobs:
       - name: Smoke test the API
         run: npm test
 
+  lint:
+    name: Lint
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+          cache-dependency-path: package-lock.json
+
+      # Root package.json holds only dev tooling, deliberately separate from
+      # api/package.json so a lint dependency never enters the API's audited
+      # runtime tree.
+      - name: Install tooling
+        run: npm ci
+
+      - name: ESLint
+        run: npm run lint
+
   # Proves the engines floor is real rather than decorative. Runs the API suite
   # only: test/browser.js needs a global WebSocket, which Node gained in 22, so
   # the front-end job cannot go this low.

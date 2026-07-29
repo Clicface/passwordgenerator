@@ -9,3 +9,17 @@ updates:
     schedule:
       interval: weekly
     open-pull-requests-limit: 5
+
+  # Root package.json: dev tooling only (ESLint).
+  - package-ecosystem: npm
+    directory: /
+    schedule:
+      interval: weekly
+    open-pull-requests-limit: 3
+
+  # Keeps the actions in ci.yml, codeql.yml and dependabot-auto-merge.yml
+  # current -- they are dependencies too, and nothing else was watching them.
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
