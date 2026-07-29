@@ -47,7 +47,7 @@ A small Express service exposing the same generator. CORS is enabled.
 
 | Parameter | Type | Default | Notes |
 | --- | --- | --- | --- |
-| `length` | integer | `8` | Clamped to **3–120**. Anything unparseable falls back to the default. |
+| `length` | integer | `8` | Must be **3–120**. Omit it for the default; supplying anything else is a `400`. |
 | `AlphaLower` | boolean | `true` | `abcdefghjkmnpqrstuvwxyz` |
 | `AlphaUpper` | boolean | `true` | `ABCDEFGHJKLMNPQRSTUVWXYZ` |
 | `Num` | boolean | `true` | `23456789` |
@@ -67,12 +67,33 @@ $ curl 'http://localhost:3000/generate?length=16&Special=true'
 {"password":"ud!wYTQ9v5!m8{Rc","score":4}
 ```
 
-**400** — every character class was disabled, so there is nothing to draw from:
+**400** — the request asked for something impossible. Bad input is answered,
+not quietly substituted: returning 120 characters to a caller who asked for
+1000 would hide the bug on their side.
 
 ```console
 $ curl 'http://localhost:3000/generate?AlphaLower=false&AlphaUpper=false&Num=false'
 {"error":"Please make at least one selection"}
+
+$ curl 'http://localhost:3000/generate?length=1000'
+{"error":"length must be between 3 and 120"}
+
+$ curl 'http://localhost:3000/generate?length=abc'
+{"error":"length must be an integer"}
 ```
+
+**429** — too many requests from one address, with `Retry-After` in seconds:
+
+```console
+$ curl 'http://localhost:3000/generate'
+{"error":"Too many requests"}
+```
+
+Default 60 requests per minute per IP, tunable with `RATE_LIMIT_MAX` and
+`RATE_LIMIT_WINDOW_MS`. Counted per process, so several instances each get
+their own allowance. Behind a reverse proxy set `TRUST_PROXY` — without it
+every visitor is rate-limited as one, and with it set carelessly a client can
+forge `X-Forwarded-For` and dodge the limit.
 
 ## Running it
 
