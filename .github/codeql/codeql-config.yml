@@ -1,0 +1,9 @@
+name: passwordgenerator CodeQL config
+
+# js/vendor holds third-party libraries copied in verbatim (jQuery, zxcvbn,
+# jquery-lang-js, js-cookie). Scanning them would bury findings about this
+# project's own code under noise nobody here can act on -- upstream fixes come
+# through Dependabot and version bumps, not through this scan.
+paths-ignore:
+  - js/vendor
+  - api/node_modules
