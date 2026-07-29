@@ -36,7 +36,7 @@ const nodeGlobals = {
 module.exports = [
 	{
 		// Vendored third-party code: not ours to lint or fix.
-		ignores: ['js/vendor/**', 'api/node_modules/**', 'node_modules/**']
+		ignores: ['js/vendor/**', 'node_modules/**']
 	},
 	{
 		// The shared generator runs in both the browser and Node, so it gets
@@ -57,7 +57,7 @@ module.exports = [
 		}
 	},
 	{
-		files: ['api/**/*.js', 'test/**/*.js'],
+		files: ['test/**/*.js'],
 		languageOptions: {
 			ecmaVersion: 2022,
 			sourceType: 'commonjs',
