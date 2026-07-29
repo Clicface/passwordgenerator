@@ -1,0 +1,67 @@
+name: Deploy to Pages
+
+on:
+  push:
+    branches: [master]
+  workflow_dispatch:
+
+# Pages currently publishes the gh-pages branch, whose last commit is from
+# 2013. This replaces that with master, and uploads only what the site needs:
+# api/, test/ and the tooling files have no business being served.
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# Never let two deploys race; queue instead. Cancelling mid-deploy could leave
+# the site half-published.
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    name: Build site
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Assemble the static site
+        run: |
+          mkdir -p _site
+          cp index.html _site/
+          cp -r css js langpack _site/
+          # favicon.png is referenced by index.html but has never been in the
+          # repo, so copy it only if it appears later.
+          [ -f favicon.png ] && cp favicon.png _site/ || true
+
+      - name: Fail if the API or tests leaked into the upload
+        run: |
+          for unwanted in api test node_modules package.json eslint.config.js; do
+            if [ -e "_site/$unwanted" ]; then
+              echo "::error::_site/$unwanted should not be published"
+              exit 1
+            fi
+          done
+          test -f _site/index.html
+          test -f _site/js/passwordgenerator.js
+          test -f _site/js/vendor/jquery.min.js
+          echo "published tree:"
+          find _site -type f | sort
+
+      - uses: actions/configure-pages@v5
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: _site
+
+  deploy:
+    name: Deploy
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4
