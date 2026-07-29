@@ -50,7 +50,7 @@
 						<label for="length_chars_select" lang="en">password character length</label>
 						<div class="length-control">
 							<input type="range" id="length_chars_select" name="length_chars_select" min="3" max="120" value="12">
-							<output id="length_value" for="length_chars_select">12</output>
+							<input type="number" id="length_value" min="3" max="120" value="12" aria-label="password character length">
 						</div>
 					</div>
 
@@ -151,8 +151,20 @@
 					try { window.localStorage.setItem('theme', next); } catch (err) { /* private mode */ }
 				});
 
+				// The slider stays the source of truth -- the generator reads it --
+				// and the number box mirrors it, so either control can drive.
+				var MIN_LENGTH = 3, MAX_LENGTH = 120;
 				$('#length_chars_select').on('input change', function() {
-					$('#length_value').text($(this).val());
+					$('#length_value').val($(this).val());
+				});
+				$('#length_value').on('input change', function() {
+					var typed = parseInt($(this).val(), 10);
+					if (isNaN(typed)) return;   // mid-typing or empty: wait for a real value
+					var clamped = Math.min(Math.max(typed, MIN_LENGTH), MAX_LENGTH);
+					$('#length_chars_select').val(clamped);
+					// Only rewrite what the visitor typed once they leave the field,
+					// otherwise typing "1" on the way to "12" snaps it to 3.
+					if (arguments[0].type === 'change') $(this).val(clamped);
 				});
 
 				$('#generate').click(function(event) {

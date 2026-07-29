@@ -92,8 +92,9 @@ const generateWithNoCharset = `(function(){
 		`--remote-debugging-port=${CDP_PORT}`, `--user-data-dir=${profile}`, url
 	], {stdio: 'ignore'});
 
-	let ws, failures = 0;
+	let ws, failures = 0, total = 0;
 	const run = async (name, fn) => {
+		total++;
 		try { await fn(); console.log(`ok - ${name}`); }
 		catch (err) { failures++; console.error(`FAIL - ${name}\n      ${err.message}`); }
 	};
@@ -178,6 +179,40 @@ const generateWithNoCharset = `(function(){
 			assert.strictEqual(field.length, 20, `got "${field}"`);
 			assert.match(field, /^[a-z]+$/);
 		});
+
+		await run('typing a length drives the slider and the generated password', async () => {
+			const out = JSON.parse(await evaluate(`(function(){
+				jQuery('#length_value').val(37).trigger('change');
+				jQuery('#generate').click();
+				return JSON.stringify({
+					slider: jQuery('#length_chars_select').val(),
+					produced: jQuery('#password-container-top').text().length
+				});
+			})()`));
+			assert.strictEqual(out.slider, '37', 'the slider did not follow the typed value');
+			assert.strictEqual(out.produced, 37, 'the password did not use the typed length');
+		});
+
+		await run('the slider drives the number box back', async () => {
+			const shown = await evaluate(`(function(){
+				jQuery('#length_chars_select').val(64).trigger('input');
+				return jQuery('#length_value').val();
+			})()`);
+			assert.strictEqual(shown, '64');
+		});
+
+		await run('a typed length outside the bounds is pulled back in', async () => {
+			const out = JSON.parse(await evaluate(`(function(){
+				jQuery('#length_value').val(9999).trigger('change');
+				var high = {box: jQuery('#length_value').val(), slider: jQuery('#length_chars_select').val()};
+				jQuery('#length_value').val(1).trigger('change');
+				return JSON.stringify({high: high, low: {box: jQuery('#length_value').val(), slider: jQuery('#length_chars_select').val()}});
+			})()`));
+			assert.strictEqual(out.high.box, '120', `9999 became ${out.high.box}`);
+			assert.strictEqual(out.high.slider, '120');
+			assert.strictEqual(out.low.box, '3', `1 became ${out.low.box}`);
+			assert.strictEqual(out.low.slider, '3');
+		});
 	} catch (err) {
 		failures++;
 		console.error(err.message);
@@ -201,6 +236,6 @@ const generateWithNoCharset = `(function(){
 		}
 	}
 
-	console.log(failures ? `\n${failures} browser test(s) failed` : '\n3 browser test(s) passed');
+	console.log(failures ? `\n${failures} browser test(s) failed` : `\n${total} browser test(s) passed`);
 	process.exit(failures ? 1 : 0);
 })();
