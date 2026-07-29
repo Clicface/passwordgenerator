@@ -40,6 +40,9 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      - name: Test the shared generator
+        run: node ../test/generator.js
+
       - name: Smoke test the API
         run: npm test
 
@@ -63,6 +66,9 @@ jobs:
 
       - name: Install dependencies
         run: npm ci
+
+      - name: Test the shared generator
+        run: node ../test/generator.js
 
       - name: Smoke test the API
         run: npm test
