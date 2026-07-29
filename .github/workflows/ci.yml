@@ -37,6 +37,21 @@ jobs:
       - name: Smoke test the API
         run: npm test
 
+  browser:
+    name: Front-end (headless Chromium)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      # index.html is plain static files with CDN scripts, so there is nothing
+      # to install: the test serves the repo and drives the browser over CDP.
+      - name: Drive index.html in a real browser
+        run: node test/browser.js
+
   audit:
     name: Dependency audit
     runs-on: ubuntu-latest
