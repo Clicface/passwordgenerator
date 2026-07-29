@@ -11,6 +11,9 @@ permissions:
 
 env:
   NODE_VERSION: '24'
+  # The floor advertised by api/package.json engines. Keep the two in step:
+  # if one moves without the other, the declared floor stops meaning anything.
+  FLOOR_NODE_VERSION: '18'
 
 jobs:
   # Job names are deliberately version-free: they are required contexts in the
@@ -34,6 +37,30 @@ jobs:
 
       # `npm ci` fails outright if package.json and package-lock.json have
       # drifted apart, which is the first thing to catch on a Dependabot bump.
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Smoke test the API
+        run: npm test
+
+  # Proves the engines floor is real rather than decorative. Runs the API suite
+  # only: test/browser.js needs a global WebSocket, which Node gained in 22, so
+  # the front-end job cannot go this low.
+  api-floor:
+    name: API (floor)
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: api
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.FLOOR_NODE_VERSION }}
+          cache: npm
+          cache-dependency-path: api/package-lock.json
+
       - name: Install dependencies
         run: npm ci
 
