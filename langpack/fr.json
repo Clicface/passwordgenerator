@@ -17,6 +17,7 @@
 		"Weak":"faible",
 		"Fair":"moyen",
 		"Strong":"fort",
-		"Very strong":"très fort"
+		"Very strong":"très fort",
+		"Source on GitHub":"code source sur GitHub"
 	}
 }
