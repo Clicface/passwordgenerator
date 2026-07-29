@@ -1,0 +1,11 @@
+version: 2
+
+# Without this file Dependabot only opens security PRs. Enabling version
+# updates means routine bumps get proposed too, and the auto-merge workflow
+# lands the non-major ones on its own once CI passes.
+updates:
+  - package-ecosystem: npm
+    directory: /api
+    schedule:
+      interval: weekly
+    open-pull-requests-limit: 5
