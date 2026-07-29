@@ -9,14 +9,17 @@ on:
 permissions:
   contents: read
 
+env:
+  NODE_VERSION: '24'
+
 jobs:
+  # Job names are deliberately version-free: they are required contexts in the
+  # master branch protection rule, so baking the Node version into the name
+  # would make every future bump silently block all PRs on a check that no
+  # longer runs. Change NODE_VERSION below, not the job names.
   api:
-    name: API (node ${{ matrix.node }})
+    name: API
     runs-on: ubuntu-latest
-    strategy:
-      fail-fast: false
-      matrix:
-        node: ['20', '22']
     defaults:
       run:
         working-directory: api
@@ -25,7 +28,7 @@ jobs:
 
       - uses: actions/setup-node@v4
         with:
-          node-version: ${{ matrix.node }}
+          node-version: ${{ env.NODE_VERSION }}
           cache: npm
           cache-dependency-path: api/package-lock.json
 
@@ -45,7 +48,7 @@ jobs:
 
       - uses: actions/setup-node@v4
         with:
-          node-version: '22'
+          node-version: ${{ env.NODE_VERSION }}
 
       # index.html is plain static files with CDN scripts, so there is nothing
       # to install: the test serves the repo and drives the browser over CDP.
@@ -63,7 +66,7 @@ jobs:
 
       - uses: actions/setup-node@v4
         with:
-          node-version: '22'
+          node-version: ${{ env.NODE_VERSION }}
           cache: npm
           cache-dependency-path: api/package-lock.json
 
