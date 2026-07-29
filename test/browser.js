@@ -124,14 +124,21 @@ const generateWithNoCharset = `(function(){
 		await send('Runtime.enable');
 		await send('Page.enable');
 
-		// jQuery, zxcvbn and jquery-lang all come from CDNs, so a slow or
-		// flaky network makes the page never finish loading through no fault
-		// of the code. Reload and wait again rather than failing on the first
-		// blip -- but still fail eventually, since a genuinely broken script
-		// URL or SRI hash in index.html looks exactly the same from here.
-		const libsReady = async () => evaluate(
-			'typeof window.jQuery === "function" && typeof window.zxcvbn === "function" && typeof window.lang === "object"'
-		).catch(() => false);
+		// Readiness is probed functionally, not by timing or by the presence of
+		// globals. Checking only that the libraries loaded was not enough: the
+		// page binds its handlers inside jQuery's ready callback, so a click
+		// landing before that does nothing at all -- no handler, no error, an
+		// empty result field. That produced a green run locally and a failure
+		// in CI, where the ordering differs.
+		//
+		// Driving the slider and watching the number box follow proves the
+		// handlers are actually attached, which is the thing the tests need.
+		const libsReady = async () => evaluate(`(function(){
+			if (typeof window.jQuery !== 'function') return false;
+			if (typeof window.zxcvbn !== 'function' || typeof window.lang !== 'object') return false;
+			jQuery('#length_chars_select').val(77).trigger('input');
+			return jQuery('#length_value').val() === '77';
+		})()`).catch(() => false);
 
 		let ready = false;
 		for (let attempt = 1; attempt <= 3 && !ready; attempt++) {
@@ -140,12 +147,12 @@ const generateWithNoCharset = `(function(){
 				if (!ready) await sleep(250);
 			}
 			if (!ready && attempt < 3) {
-				console.error(`  CDN scripts not up after 30s, reloading (attempt ${attempt + 1}/3)`);
+				console.error(`  page not interactive after 30s, reloading (attempt ${attempt + 1}/3)`);
 				await send('Page.navigate', {url});
 				await sleep(1000);
 			}
 		}
-		assert.ok(ready, 'jQuery, zxcvbn and jquery-lang never loaded after 3 attempts — CDN unreachable, or a script URL/SRI hash in index.html is wrong');
+		assert.ok(ready, 'the page never became interactive after 3 attempts — a script under js/vendor is missing or broken, or index.html no longer wires the length controls');
 
 		await run('generating with no character class shows the message instead of throwing', async () => {
 			const r = JSON.parse(await evaluate(generateWithNoCharset));
