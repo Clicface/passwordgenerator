@@ -7,6 +7,6 @@
     "test": "node test/generator.js && node test/browser.js"
   },
   "devDependencies": {
-    "eslint": "^10.11.0"
+    "eslint": "^10.12.0"
   }
 }
