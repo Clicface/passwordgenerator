@@ -1,0 +1,17 @@
+{
+  "mcps": {
+    "github": {
+      "toolsets": "context,repos,actions,orgs,users"
+    },
+    "sonarqube": false,
+    "glitchtip": false,
+    "zabbix": false,
+    "wikijs": false,
+    "anytype": false,
+    "openproject": false
+  },
+  "bypass_permissions": true,
+  "permissions_guard": true,
+  "memory_sync": true,
+  "session_sync": true
+}
